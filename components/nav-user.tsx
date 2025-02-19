@@ -1,13 +1,13 @@
 "use client";
 
-import {
-  ChevronsUpDown
-} from "lucide-react";
+import { ChevronsUpDown, Settings } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
-  DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
@@ -21,13 +21,11 @@ export function NavUser({
   user,
 }: {
   user: {
-    name: string;
-    email: string;
-    avatar: string;
+    fullName: string;
   };
 }) {
   const { isMobile } = useSidebar();
-  
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -37,13 +35,14 @@ export function NavUser({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
+              {/* <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-              </Avatar>
+              </Avatar> */}
+              <Settings className="size-4" />
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">{user.fullName}</span>
+                <span className="text-xs text-gray-500">Pengaturan</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -57,9 +56,7 @@ export function NavUser({
             <DropdownMenuItem>
               <SignedIn>
                 <UserButton />
-                <SignOutButton>
-                  Keluar
-                  </SignOutButton>
+                <SignOutButton>Keluar</SignOutButton>
               </SignedIn>
             </DropdownMenuItem>
           </DropdownMenuContent>

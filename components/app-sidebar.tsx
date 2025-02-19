@@ -1,31 +1,31 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
+  Activity,
   Book,
   CreditCard,
   FolderArchive,
+  FolderOpen,
+  GitBranch,
   NotebookText,
   SquareTerminal,
   Users,
-  WalletCards
-} from "lucide-react"
+  WalletCards,
+} from "lucide-react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
+import { NavMain } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter, SidebarRail
-} from "@/components/ui/sidebar"
+  SidebarFooter,
+  SidebarRail,
+} from "@/components/ui/sidebar";
+import { useUser } from "@clerk/nextjs";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Master Data",
@@ -36,21 +36,22 @@ const data = {
         {
           title: "Kasir",
           icon: Users,
-          url: "#",
+          url: "/kasir",
         },
         {
           title: "Barang",
-          icon: FolderArchive,
-          url: "#",
+          icon: FolderOpen,
+          url: "/barang",
         },
         {
           title: "Stok",
           icon: FolderArchive,
           url: "#",
+          Activity,
         },
         {
           title: "Cabang",
-          icon: FolderArchive,
+          icon: GitBranch,
           url: "#",
         },
       ],
@@ -98,20 +99,40 @@ const data = {
           url: "#",
         },
       ],
-    }
+    },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { isLoaded, isSignedIn, user } = useUser();
+
+  React.useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
+    if (!isSignedIn) {
+      window.location.href = "/sign-in";
+    }
+  });
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser
+          user={
+            (user as {
+              fullName: string;
+            }) ?? {
+              fullName: "Guest",
+            }
+          }
+        />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
