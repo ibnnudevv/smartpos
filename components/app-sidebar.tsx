@@ -7,6 +7,7 @@ import {
   FolderArchive,
   NotebookText,
   SquareTerminal,
+  Users,
   WalletCards
 } from "lucide-react"
 
@@ -32,6 +33,11 @@ const data = {
       icon: SquareTerminal,
       isActive: true,
       items: [
+        {
+          title: "Kasir",
+          icon: Users,
+          url: "#",
+        },
         {
           title: "Barang",
           icon: FolderArchive,

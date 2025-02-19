@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Cabang {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User            User[]
+  Stok            Stok[]
+  detailTransaksi DetailTransaksi[]
+  LogBarang       LogBarang[]
+}
+
+model User {
+  id             Int               @id @default(autoincrement())
+  nama           String
+  email          String
+  password       String
+  cabangId       Int
+  cabang         Cabang            @relation(fields: [cabangId], references: [id])
+  role           Role
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  Transaksi      Transaksi[]
+  createdDetails DetailTransaksi[] @relation("createdBy")
+  createdLogs    LogBarang[]       @relation("createdBy")
+}
+
+model Barang {
+  id        Int      @id @default(autoincrement())
+  kode      String   @unique // ex: BRG-001
+  nama      String
+  harga     Int
+  diskon    Int?     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Stok            Stok[]
+  DetailTransaksi DetailTransaksi[]
+  LogBarang       LogBarang[]
+}
+
+model Stok {
+  id        Int      @id @default(autoincrement())
+  barangId  Int
+  barang    Barang   @relation(fields: [barangId], references: [id])
+  cabangId  Int
+  cabang    Cabang   @relation(fields: [cabangId], references: [id])
+  jumlah    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Transaksi {
+  id        Int      @id @default(autoincrement())
+  kode      String   @unique // ex: TRX-001
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  subTotal  Int?
+  diskon    Int?
+  total     Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  DetailTransaksi DetailTransaksi[]
+}
+
+model DetailTransaksi {
+  id          Int       @id @default(autoincrement())
+  transaksi   Transaksi @relation(fields: [transaksiId], references: [id])
+  cabang      Cabang    @relation(fields: [cabangId], references: [id])
+  cabangId    Int
+  transaksiId Int
+  barang      Barang    @relation(fields: [barangId], references: [id])
+  barangId    Int
+  jumlah      Int
+  harga       Int
+  diskon      Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  createdUser   User @relation("createdBy", fields: [createdUserId], references: [id])
+  createdUserId Int
+}
+
+// model untuk pencatatan barang masuk, barang keluar, dan stok barang
+model LogBarang {
+  id       Int            @id @default(autoincrement())
+  barangId Int
+  barang   Barang         @relation(fields: [barangId], references: [id])
+  cabangId Int
+  cabang   Cabang         @relation(fields: [cabangId], references: [id])
+  jumlah   Int
+  harga    Int?
+  total    Int?
+  jenis    JenisLogBarang
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdUser   User @relation("createdBy", fields: [createdUserId], references: [id])
+  createdUserId Int
+}
+
+enum JenisLogBarang {
+  MASUK
+  KELUAR
+  PENJUALAN
+}
+
+enum Role {
+  KASIR
+  ADMIN_CABANG
+}
