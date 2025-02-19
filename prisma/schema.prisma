@@ -22,7 +22,8 @@ model Cabang {
 model User {
   id             Int               @id @default(autoincrement())
   nama           String
-  email          String
+  username       String            @unique
+  email          String?           @unique
   password       String
   cabangId       Int
   cabang         Cabang            @relation(fields: [cabangId], references: [id])
