@@ -31,6 +31,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Plus } from "lucide-react";
+import { FormComponent } from "../form";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -69,7 +71,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex items-center py-4 space-x-4">
+      <div className="flex items-center py-4 space-x-4 justify-between">
         <Input
           placeholder="Cari berdasarkan nama..."
           value={(table.getColumn("nama")?.getFilterValue() as string) ?? ""}
@@ -78,6 +80,7 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
+        <FormComponent />
       </div>
 
       <div className="rounded-md border">
