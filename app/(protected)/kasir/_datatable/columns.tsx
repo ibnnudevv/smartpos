@@ -20,8 +20,13 @@ export const columns: ColumnDef<
   }
 >[] = [
   {
-    accessorKey: "cabang.nama",
+    id: "cabang",
     header: "Cabang",
+    accessorFn: (row) => row.cabang?.nama,
+    cell: ({ row }) => {
+      const cabang = row.original.cabang;
+      return <span>{cabang?.nama}</span>;
+    },
   },
   {
     accessorKey: "nama",
@@ -33,8 +38,8 @@ export const columns: ColumnDef<
     cell: ({ row }) => {
       const role = row.original.role;
       return (
-        <Badge variant={"outline"} className="text-xs">
-          {role}
+        <Badge variant={"info"} className="text-xs rounded-full">
+          {role.replace("_", " ")}
         </Badge>
       );
     },
@@ -42,6 +47,21 @@ export const columns: ColumnDef<
   {
     accessorKey: "username",
     header: "Username",
+  },
+  {
+    accessorKey: "isActive",
+    header: "Status",
+    cell: ({ row }) => {
+      const isActive = row.original.isActive;
+      return (
+        <Badge
+          variant={isActive ? "success" : "error"}
+          className="text-xs rounded-full"
+        >
+          {isActive ? "Aktif" : "Tidak Aktif"}
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: "id",

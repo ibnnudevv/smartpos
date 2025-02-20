@@ -33,6 +33,7 @@ model User {
   Transaksi      Transaksi[]
   createdDetails DetailTransaksi[] @relation("createdBy")
   createdLogs    LogBarang[]       @relation("createdBy")
+  isActive       Boolean           @default(true)
 }
 
 model Barang {
@@ -43,6 +44,7 @@ model Barang {
   diskon    Int?     @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
 
   Stok            Stok[]
   DetailTransaksi DetailTransaksi[]
@@ -58,6 +60,7 @@ model Stok {
   jumlah    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
 }
 
 model Transaksi {
@@ -70,6 +73,7 @@ model Transaksi {
   total     Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
 
   DetailTransaksi DetailTransaksi[]
 }
@@ -87,6 +91,7 @@ model DetailTransaksi {
   diskon      Int?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  isActive    Boolean   @default(true)
 
   createdUser   User @relation("createdBy", fields: [createdUserId], references: [id])
   createdUserId Int
@@ -106,6 +111,7 @@ model LogBarang {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
 
   createdUser   User @relation("createdBy", fields: [createdUserId], references: [id])
   createdUserId Int

@@ -1,16 +1,18 @@
-import React from "react";
+"use client";
 
-// Datatabel component
+import React, { useEffect, useState } from "react";
+
 import { DataTable } from "./_datatable/data-table";
 import { columns } from "./_datatable/columns";
-import prisma from "@/lib/prisma";
+import axios from "axios";
 
-const Page = async () => {
-  const res = await prisma.user.findMany({
-    include: {
-      cabang: true,
-    },
-  });
+const Page = () => {
+  const [res, setRes] = useState([]);
+  useEffect(() => {
+    axios.get("/api/user").then((response) => {
+      setRes(response.data.data);
+    });
+  }, []);
 
   return (
     <>

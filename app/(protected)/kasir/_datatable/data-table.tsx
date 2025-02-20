@@ -21,9 +21,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AddForm } from "../_forms/add";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -31,8 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
-import { FormComponent } from "../form";
+import axios from "axios";
+import { Cabang } from "@prisma/client";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -67,20 +68,51 @@ export function DataTable<TData, TValue>({
       pagination,
     },
     onPaginationChange: setPagination,
+    manualPagination: false,
   });
+
+  const [cabang, setCabang] = useState<Cabang[]>([]);
+  useEffect(() => {
+    axios.get("/api/cabang").then((response) => {
+      setCabang(response.data.data);
+    });
+
+    console.log("columns", columns);
+  }, []);
 
   return (
     <>
       <div className="flex items-center py-4 space-x-4 justify-between">
-        <Input
-          placeholder="Cari berdasarkan nama..."
-          value={(table.getColumn("nama")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("nama")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <FormComponent />
+        <div className="flex items-center gap-2">
+          <Select
+            onValueChange={(value) => {
+              table
+                .getColumn("cabang")
+                ?.setFilterValue(value === "all" ? undefined : value);
+            }}
+          >
+            <SelectTrigger className="w-fit">
+              <SelectValue placeholder="Semua Cabang" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={"all"}>Semua Cabang</SelectItem>
+              {cabang.map((cabang) => (
+                <SelectItem key={cabang.id} value={cabang.nama.toString()}>
+                  {cabang.nama}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Input
+            placeholder="Cari berdasarkan nama..."
+            value={(table.getColumn("nama")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("nama")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
+        <AddForm />
       </div>
 
       <div className="rounded-md border">
@@ -107,6 +139,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={row.index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -133,36 +166,61 @@ export function DataTable<TData, TValue>({
       </div>
 
       <div className="flex items-center justify-between space-x-4 py-4">
-        <span className="text-sm">
-          Halaman {table.getState().pagination.pageIndex + 1} dari{" "}
-          {table.getPageCount()}
-        </span>
+        <Select
+          value={String(pageSize)}
+          onValueChange={(value) => {
+            const newSize = Number(value);
+            setPageSize(newSize);
+            setPagination((prev) => ({ ...prev, pageSize: newSize }));
+            table.setPageSize(newSize);
+          }}
+        >
+          <SelectTrigger className="w-fit">
+            <SelectValue placeholder={pageSize} />
+          </SelectTrigger>
+          <SelectContent>
+            {[5, 10, 25, 50, 100].map((size) => (
+              <SelectItem key={size} value={size.toString()}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <div className="flex items-center space-x-2">
+          {/* Tombol Previous */}
           <Button
             variant="outline"
-            size="sm"
-            onClick={() =>
-              setPagination((prev) => ({
-                ...prev,
-                pageIndex: prev.pageIndex - 1,
-              }))
-            }
+            onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            size={"icon"}
           >
-            Sebelumnya
+            <ChevronLeft />
           </Button>
+
+          {Array.from({ length: table.getPageCount() }).map((_, index) => (
+            <Button
+              key={index}
+              variant={
+                table.getState().pagination.pageIndex === index
+                  ? "default"
+                  : "outline"
+              }
+              size={"icon"}
+              onClick={() => table.setPageIndex(index)}
+            >
+              {index + 1}
+            </Button>
+          ))}
+
+          {/* Tombol Next */}
           <Button
             variant="outline"
-            size="sm"
-            onClick={() =>
-              setPagination((prev) => ({
-                ...prev,
-                pageIndex: prev.pageIndex + 1,
-              }))
-            }
+            onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            size={"icon"}
           >
-            Selanjutnya
+            <ChevronRight />
           </Button>
         </div>
       </div>

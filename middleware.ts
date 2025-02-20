@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)"]);
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
+const isAPIRoute = createRouteMatcher(["/api(.*)"]);
 
 export default clerkMiddleware(async (auth, request) => {
   const { userId } = await auth();
@@ -26,6 +27,11 @@ export default clerkMiddleware(async (auth, request) => {
   // 3.  Jika sudah login dan di root, redirect ke dashboard (opsional, tapi disarankan)
   if (userId && url.pathname === "/") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // 4. Jika sudah login dan mencoba akses API, lanjutkan request
+  if (userId && isAPIRoute(request)) {
+    return NextResponse.next();
   }
 
 
