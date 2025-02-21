@@ -1,0 +1,198 @@
+"use client";
+
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { AddForm } from "../_forms/add";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+}
+
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+}: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [pageSize, setPageSize] = useState(10); // Default 10 data per halaman
+
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: pageSize,
+  });
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+      pagination,
+    },
+    onPaginationChange: setPagination,
+    manualPagination: false,
+  });
+
+  return (
+    <>
+      <div className="flex items-center py-4 space-x-4 justify-between">
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder="Cari berdasarkan nama..."
+            value={(table.getColumn("nama")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("nama")?.setFilterValue(event.target.value)
+            }
+          />
+        </div>
+        <AddForm />
+      </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  className={row.index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="flex items-center justify-between space-x-4 py-4">
+        <Select
+          value={String(pageSize)}
+          onValueChange={(value) => {
+            const newSize = Number(value);
+            setPageSize(newSize);
+            setPagination((prev) => ({ ...prev, pageSize: newSize }));
+            table.setPageSize(newSize);
+          }}
+        >
+          <SelectTrigger className="w-fit">
+            <SelectValue placeholder={pageSize} />
+          </SelectTrigger>
+          <SelectContent>
+            {[5, 10, 25, 50, 100].map((size) => (
+              <SelectItem key={size} value={size.toString()}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <div className="flex items-center space-x-2">
+          {/* Tombol Previous */}
+          <Button
+            variant="outline"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            size={"icon"}
+          >
+            <ChevronLeft />
+          </Button>
+
+          {Array.from({ length: table.getPageCount() }).map((_, index) => (
+            <Button
+              key={index}
+              variant={
+                table.getState().pagination.pageIndex === index
+                  ? "default"
+                  : "outline"
+              }
+              size={"icon"}
+              onClick={() => table.setPageIndex(index)}
+            >
+              {index + 1}
+            </Button>
+          ))}
+
+          {/* Tombol Next */}
+          <Button
+            variant="outline"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            size={"icon"}
+          >
+            <ChevronRight />
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+}

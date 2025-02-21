@@ -9,14 +9,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { KategoriBarang } from "@prisma/client";
+import { Cabang } from "@prisma/client";
 
 import { Badge } from "@/components/ui/badge";
 import { EditForm } from "../_forms/edit";
 import DeleteForm from "../_forms/delete";
 import { toast } from "sonner";
 
-export const columns: ColumnDef<KategoriBarang>[] = [
+export const columns: ColumnDef<Cabang>[] = [
   {
     accessorKey: "nama",
     header: "Nama",
@@ -40,20 +40,35 @@ export const columns: ColumnDef<KategoriBarang>[] = [
     accessorKey: "id",
     header: "",
     cell: ({ row }) => {
-      const kategoriBarang = row.original;
+      const cabang = row.original;
 
-      // Fungsi untuk menghapus user
       const handleDelete = async () => {
         try {
+          const response = await fetch(`/api/cabang?id=${cabang.id}`, {
+            method: "DELETE",
+          });
+
+          if (response.ok) {
+            toast.success("Cabang berhasil dihapus!");
+          } else {
+            toast.error("Terjadi kesalahan, silahkan coba lagi");
+          }
+        } catch (error) {
+          toast.error("Terjadi kesalahan, silahkan coba lagi");
+        }
+      };
+
+      const handleActivate = async () => {
+        try {
           const response = await fetch(
-            `/api/kategori-barang?id=${kategoriBarang.id}`,
+            `/api/cabang?id=${cabang.id}&status=true`,
             {
-              method: "DELETE",
+              method: "PATCH",
             }
           );
 
           if (response.ok) {
-            toast.success("Kategori barang berhasil dihapus!");
+            toast.success("Cabang berhasil diaktifkan!");
           } else {
             toast.error("Terjadi kesalahan, silahkan coba lagi");
           }
@@ -68,13 +83,23 @@ export const columns: ColumnDef<KategoriBarang>[] = [
             <MoreHorizontal className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <EditForm kategoriBarang={kategoriBarang} />
-            <DeleteForm
-              label="Hapus"
-              message="Konfirmasi Hapus"
-              description={`Apakah Anda yakin ingin menghapus ${kategoriBarang.nama}?`}
-              onConfirm={handleDelete}
-            />
+            <EditForm cabang={cabang} />
+            {cabang.isActive ? (
+              <DeleteForm
+                label="Hapus"
+                message="Konfirmasi Hapus"
+                description={`Apakah Anda yakin ingin menghapus ${cabang.nama}?`}
+                onConfirm={handleDelete}
+              />
+            ) : (
+              <DeleteForm
+                label="Aktifkan"
+                message="Konfirmasi Aktifkan"
+                description={`Apakah Anda yakin ingin mengaktifkan ${cabang.nama}?`}
+                onConfirm={handleActivate}
+                buttonLabel="Aktifkan"
+              />
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );

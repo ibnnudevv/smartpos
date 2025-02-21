@@ -56,7 +56,7 @@ const data = {
         {
           title: "Cabang",
           icon: GitBranch,
-          url: "#",
+          url: "/cabang",
         },
       ],
     },

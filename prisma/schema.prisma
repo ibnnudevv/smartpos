@@ -12,6 +12,7 @@ model Cabang {
   nama      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
 
   User            User[]
   Stok            Stok[]

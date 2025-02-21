@@ -68,7 +68,7 @@ export const columns: ColumnDef<
   },
   {
     accessorKey: "id",
-    header: "Actions",
+    header: "",
     cell: ({ row }) => {
       const user = row.original;
 
@@ -95,7 +95,6 @@ export const columns: ColumnDef<
             <MoreHorizontal className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>Aksi</DropdownMenuLabel>
             <EditForm user={user} />
             <DeleteForm
               label="Hapus"

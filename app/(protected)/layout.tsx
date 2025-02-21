@@ -18,7 +18,19 @@ import {
 } from "@/components/ui/sidebar";
 
 import { ClerkProvider } from "@clerk/nextjs";
+import { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import { usePathname } from "next/navigation";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export default function RootLayout({
   children,
@@ -37,7 +49,11 @@ export default function RootLayout({
               <DynamicBreadcrumb />
             </div>
           </header>
-          <div className="p-4 pt-0">{children}</div>
+          <div
+            className={`p-4 pt-0 ${geistSans.variable} ${geistMono.variable} antialiased`}
+          >
+            {children}
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </ClerkProvider>
