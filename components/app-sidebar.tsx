@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useUser } from "@clerk/nextjs";
 
-// This is sample data.
 const data = {
   navMain: [
     {
@@ -42,6 +41,11 @@ const data = {
           title: "Barang",
           icon: FolderOpen,
           url: "/barang",
+        },
+        {
+          title: "Kategori Barang",
+          icon: FolderOpen,
+          url: "/kategori-barang",
         },
         {
           title: "Stok",

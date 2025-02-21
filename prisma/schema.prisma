@@ -46,9 +46,21 @@ model Barang {
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
 
-  Stok            Stok[]
-  DetailTransaksi DetailTransaksi[]
-  LogBarang       LogBarang[]
+  Stok             Stok[]
+  DetailTransaksi  DetailTransaksi[]
+  LogBarang        LogBarang[]
+  KategoriBarang   KategoriBarang    @relation(fields: [kategoriBarangId], references: [id])
+  kategoriBarangId Int
+}
+
+model KategoriBarang {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  Barang Barang[]
 }
 
 model Stok {
