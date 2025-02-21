@@ -34,9 +34,9 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "Kasir",
+          title: "Karyawan",
           icon: Users,
-          url: "/kasir",
+          url: "/karyawan",
         },
         {
           title: "Barang",

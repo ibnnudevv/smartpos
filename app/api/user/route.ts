@@ -134,6 +134,9 @@ export async function GET() {
     include: {
       cabang: true,
     },
+    where: {
+      isActive: true,
+    },
   });
 
   return NextResponse.json({ success: true, data: users });
@@ -177,11 +180,14 @@ export async function DELETE(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
-    await prisma.user.delete({
+    await prisma.user.update({
       where: {
         id: Number(id),
       },
-    });
+      data: {
+        isActive: false,
+      },
+    })
 
     return NextResponse.json(
       {
