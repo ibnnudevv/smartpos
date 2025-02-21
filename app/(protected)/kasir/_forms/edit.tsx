@@ -31,11 +31,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Plus } from "lucide-react";
-import { userSchema } from "@/schemas/user";
+import { Edit } from "lucide-react";
+import { updateUserSchema } from "@/schemas/user";
 import { useEffect, useState } from "react";
-import { Role } from "@prisma/client";
+import { Role, User } from "@prisma/client";
 import axios from "axios";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 interface Cabang {
   id: number;
@@ -47,7 +48,11 @@ const getCabang = async (): Promise<Cabang[]> => {
   return response.data;
 };
 
-export function AddForm() {
+interface EditFormProps {
+  user: User;
+}
+
+export function EditForm({ user }: EditFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [cabang, setCabang] = useState<Cabang[]>([]);
 
@@ -56,49 +61,51 @@ export function AddForm() {
   }, []);
 
   const form = useForm({
-    resolver: yupResolver(userSchema),
+    resolver: yupResolver(updateUserSchema),
     defaultValues: {
-      nama: "",
-      username: "",
-      email: "",
-      password: "",
-      cabangId: undefined,
-      role: undefined,
+      nama: user.nama,
+      username: user.username,
+      email: user.email,
+      cabangId: user.cabangId,
+      role: user.role,
     },
   });
 
   const onSubmit = async (data: any) => {
-    await axios
-      .post("/api/user", data)
-      .then((response) => {
-        if (response.status == 201) {
-          form.reset();
-          toast.success("Kasir berhasil ditambahkan");
-          setIsOpen(false);
-        }
-      })
-      .catch((error) => {
-        if (error.response) {
-          toast.error(error.response.data.message);
-        } else {
-          toast.error("Terjadi kesalahan, silahkan coba lagi");
-        }
+    try {
+      const response = await axios.put(`/api/user`, {
+        ...data,
+        id: user.id,
       });
+      if (response.status === 200) {
+        form.reset();
+        toast.success("Pengguna berhasil diperbarui");
+        setIsOpen(false);
+      }
+    } catch (error: any) {
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Terjadi kesalahan, silahkan coba lagi");
+      }
+    }
   };
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
       <SheetTrigger asChild>
-        <Button variant="default" onClick={() => setIsOpen(!isOpen)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Tambah Kasir
-        </Button>
+        <DropdownMenuItem
+          onSelect={(e) => e.preventDefault()}
+          onClick={() => setIsOpen(true)}
+        >
+          Edit
+        </DropdownMenuItem>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Tambah Kasir</SheetTitle>
+          <SheetTitle>Edit Kasir</SheetTitle>
           <SheetDescription>
-            Isi formulir di bawah ini dan klik simpan.
+            Ubah formulir di bawah ini dan klik simpan.
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
@@ -134,12 +141,9 @@ export function AddForm() {
                     <Input
                       placeholder="Masukkan username"
                       onInput={(e) => {
-                        // replace whitespace with dash
                         const target = e.target as HTMLInputElement;
                         target.value = target.value.replace(/\s/g, "-");
-                        // change to lowercase
                         target.value = target.value.toLowerCase();
-
                         field.onChange(e);
                       }}
                       {...field}
@@ -161,24 +165,8 @@ export function AddForm() {
                     <Input
                       placeholder="Masukkan email"
                       type="email"
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Kata Sandi</FormLabel>
-                  <FormControl>
-                    <PasswordInput
-                      placeholder="Masukkan kata sandi"
                       {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -226,6 +214,7 @@ export function AddForm() {
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>

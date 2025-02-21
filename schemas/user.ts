@@ -1,13 +1,15 @@
 import { Role } from '@prisma/client';
 import * as Yup from 'yup';
 
-const userSchema = Yup.object().shape({
-    nama: Yup.string().required(),
-    username: Yup.string().required(),
-    email: Yup.string().email().nullable(),
-    password: Yup.string().required(),
-    cabangId: Yup.number().required(),
-    role: Yup.string().oneOf(Object.values(Role)).required(),
+export const userSchema = Yup.object().shape({
+    nama: Yup.string().required('Nama wajib diisi'),
+    username: Yup.string().required('Username wajib diisi'),
+    email: Yup.string().email('Email tidak valid').nullable(),
+    password: Yup.string().required('Password wajib diisi'),
+    cabangId: Yup.number().required('Cabang wajib diisi'),
+    role: Yup.string().oneOf(Object.values(Role), 'Role tidak valid').required('Role wajib diisi'),
 });
 
-export default userSchema;
+export const updateUserSchema = userSchema.shape({
+    password: Yup.string().nullable().notRequired(),
+});

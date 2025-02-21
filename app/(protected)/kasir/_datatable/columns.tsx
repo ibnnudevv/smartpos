@@ -13,6 +13,9 @@ import {
 import { Cabang, User } from "@prisma/client";
 
 import { Badge } from "@/components/ui/badge";
+import { EditForm } from "../_forms/edit";
+import DeleteForm from "../_forms/delete";
+import { toast } from "sonner";
 
 export const columns: ColumnDef<
   User & {
@@ -33,20 +36,20 @@ export const columns: ColumnDef<
     header: "Nama",
   },
   {
+    accessorKey: "username",
+    header: "Username",
+  },
+  {
     accessorKey: "role",
     header: "Role",
     cell: ({ row }) => {
       const role = row.original.role;
       return (
-        <Badge variant={"info"} className="text-xs rounded-full">
-          {role.replace("_", " ")}
+        <Badge className="text-xs rounded-full">
+          {role.replace("_", " ").toLowerCase()}
         </Badge>
       );
     },
-  },
-  {
-    accessorKey: "username",
-    header: "Username",
   },
   {
     accessorKey: "isActive",
@@ -66,17 +69,43 @@ export const columns: ColumnDef<
   {
     accessorKey: "id",
     header: "Actions",
-    cell: (row) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <MoreHorizontal className="h-4 w-4" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Hapus</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+    cell: ({ row }) => {
+      const user = row.original;
+
+      // Fungsi untuk menghapus user
+      const handleDelete = async () => {
+        try {
+          const response = await fetch(`/api/user?id=${user.id}`, {
+            method: "DELETE",
+          });
+
+          if (response.ok) {
+            toast.success("User berhasil dihapus!");
+          } else {
+            toast.error("Terjadi kesalahan, silahkan coba lagi");
+          }
+        } catch (error) {
+          toast.error("Terjadi kesalahan, silahkan coba lagi");
+        }
+      };
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <MoreHorizontal className="h-4 w-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+            <EditForm user={user} />
+            <DeleteForm
+              label="Hapus"
+              message="Konfirmasi Hapus"
+              description={`Apakah Anda yakin ingin menghapus ${user.nama}?`}
+              onConfirm={handleDelete}
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
   },
 ];
