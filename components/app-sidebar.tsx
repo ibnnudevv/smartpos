@@ -111,14 +111,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isLoaded, isSignedIn, user } = useUser();
 
   React.useEffect(() => {
-    if (!isLoaded) {
-      return;
-    }
-
-    if (!isSignedIn) {
-      window.location.href = "/sign-in";
-    }
-  });
+    if (!isLoaded) return;
+    if (!isSignedIn) window.location.href = "/sign-in";
+  }, [isLoaded, isSignedIn]);
 
   return (
     <Sidebar collapsible="icon" {...props}>
