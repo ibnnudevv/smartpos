@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { EditForm } from "../_forms/edit";
 import DeleteForm from "../_forms/delete";
 import { toast } from "sonner";
+import { useRefetch } from "@/context/refetch";
 
 export const columns: ColumnDef<
   Barang & {
@@ -111,6 +112,7 @@ export const columns: ColumnDef<
     accessorKey: "id",
     header: "",
     cell: ({ row }) => {
+      const { handleRefetch } = useRefetch();
       const barang = row.original;
 
       const handleDelete = async () => {
@@ -121,6 +123,7 @@ export const columns: ColumnDef<
 
           if (response.ok) {
             toast.success("Barang berhasil dihapus!");
+            handleRefetch("fetch-barang");
           } else {
             toast.error("Terjadi kesalahan, silahkan coba lagi");
           }

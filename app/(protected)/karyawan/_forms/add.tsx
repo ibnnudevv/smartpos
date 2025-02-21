@@ -36,6 +36,7 @@ import { userSchema } from "@/schemas/user";
 import { useEffect, useState } from "react";
 import { Role } from "@prisma/client";
 import axios from "axios";
+import { useRefetch } from "@/context/refetch";
 
 interface Cabang {
   id: number;
@@ -48,6 +49,7 @@ const getCabang = async (): Promise<Cabang[]> => {
 };
 
 export function AddForm() {
+  const { handleRefetch } = useRefetch();
   const [isOpen, setIsOpen] = useState(false);
   const [cabang, setCabang] = useState<Cabang[]>([]);
 
@@ -75,6 +77,7 @@ export function AddForm() {
           form.reset();
           toast.success("Kasir berhasil ditambahkan");
           setIsOpen(false);
+          handleRefetch("fetch-karyawan");
         }
       })
       .catch((error) => {

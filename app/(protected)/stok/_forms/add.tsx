@@ -36,8 +36,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRefetch } from "@/context/refetch";
 
 export function AddForm() {
+  const { handleRefetch } = useRefetch();
   const { user } = useUser();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -82,6 +84,7 @@ export function AddForm() {
       toast.success("Stok berhasil ditambahkan");
       setIsOpen(false);
       form.reset();
+      handleRefetch("fetch-stok");
     }
 
     if (response.status === 400) {

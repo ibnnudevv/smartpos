@@ -16,6 +16,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { RefetchProvider } from "@/context/refetch";
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { Metadata } from "next";
@@ -52,7 +53,7 @@ export default function RootLayout({
           <div
             className={`p-4 pt-0 ${geistSans.variable} ${geistMono.variable} antialiased`}
           >
-            {children}
+            <RefetchProvider>{children}</RefetchProvider>
           </div>
         </SidebarInset>
       </SidebarProvider>

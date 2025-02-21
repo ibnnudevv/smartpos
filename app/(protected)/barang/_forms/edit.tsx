@@ -37,12 +37,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRefetch } from "@/context/refetch";
 
 interface EditFormProps {
   barang: Barang;
 }
 
 export function EditForm({ barang }: EditFormProps) {
+  const { handleRefetch } = useRefetch();
   const [isOpen, setIsOpen] = useState(false);
   const [listKategoriBarang, setListKategoriBarang] = useState<
     KategoriBarang[]
@@ -76,6 +78,7 @@ export function EditForm({ barang }: EditFormProps) {
         form.reset();
         toast.success("Barang berhasil diperbarui");
         setIsOpen(false);
+        handleRefetch("fetch-barang");
       }
     } catch (error: any) {
       if (error.response) {

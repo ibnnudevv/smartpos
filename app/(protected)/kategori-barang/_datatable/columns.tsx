@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { EditForm } from "../_forms/edit";
 import DeleteForm from "../_forms/delete";
 import { toast } from "sonner";
+import { useRefetch } from "@/context/refetch";
 
 export const columns: ColumnDef<KategoriBarang>[] = [
   {
@@ -40,6 +41,7 @@ export const columns: ColumnDef<KategoriBarang>[] = [
     accessorKey: "id",
     header: "",
     cell: ({ row }) => {
+      const { handleRefetch } = useRefetch();
       const kategoriBarang = row.original;
 
       // Fungsi untuk menghapus user
@@ -54,6 +56,7 @@ export const columns: ColumnDef<KategoriBarang>[] = [
 
           if (response.ok) {
             toast.success("Kategori barang berhasil dihapus!");
+            handleRefetch("fetch-kategori-barang");
           } else {
             toast.error("Terjadi kesalahan, silahkan coba lagi");
           }

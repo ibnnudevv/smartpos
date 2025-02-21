@@ -27,12 +27,14 @@ import { KategoriBarang } from "@prisma/client";
 import axios from "axios";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { kategoriBarangSchema } from "@/schemas/kategori-barang";
+import { useRefetch } from "@/context/refetch";
 
 interface EditFormProps {
   kategoriBarang: KategoriBarang;
 }
 
 export function EditForm({ kategoriBarang }: EditFormProps) {
+  const { handleRefetch } = useRefetch();
   const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm({
@@ -52,6 +54,7 @@ export function EditForm({ kategoriBarang }: EditFormProps) {
         form.reset();
         toast.success("Kategori barang berhasil diperbarui");
         setIsOpen(false);
+        handleRefetch("fetch-kategori-barang");
       }
     } catch (error: any) {
       if (error.response) {

@@ -28,12 +28,14 @@ import { Stok } from "@prisma/client";
 import axios from "axios";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { stokSchema } from "@/schemas/stok"; // Pastikan schema stok sudah dibuat
+import { useRefetch } from "@/context/refetch";
 
 interface EditFormProps {
   stok: Stok & { barang: { nama: string }; cabang: { nama: string } };
 }
 
 export function EditForm({ stok }: EditFormProps) {
+  const { handleRefetch } = useRefetch();
   const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm({
@@ -55,6 +57,7 @@ export function EditForm({ stok }: EditFormProps) {
         form.reset();
         toast.success("Stok berhasil diperbarui");
         setIsOpen(false);
+        handleRefetch("fetch-stok");
       }
     } catch (error: any) {
       if (error.response) {

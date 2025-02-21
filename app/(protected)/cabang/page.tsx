@@ -5,14 +5,16 @@ import React, { useEffect, useState } from "react";
 import { DataTable } from "./_datatable/data-table";
 import { columns } from "./_datatable/columns";
 import axios from "axios";
+import { useRefetch } from "@/context/refetch";
 
 const Page = () => {
+  const { refetchMap } = useRefetch();
   const [res, setRes] = useState([]);
   useEffect(() => {
     axios.get("/api/cabang").then((response) => {
       setRes(response.data.data);
     });
-  }, []);
+  }, [refetchMap["fetch-cabang"]]);
 
   return (
     <>

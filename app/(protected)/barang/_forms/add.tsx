@@ -38,8 +38,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRefetch } from "@/context/refetch";
 
 export function AddForm() {
+  const { handleRefetch } = useRefetch();
   const [isOpen, setIsOpen] = useState(false);
   const [listKategoriBarang, setListKategoriBarang] = useState<
     KategoriBarang[]
@@ -76,6 +78,7 @@ export function AddForm() {
         form.reset();
         toast.success("Barang berhasil ditambahkan");
         setIsOpen(false);
+        handleRefetch("fetch-barang");
       }
     } catch (error: any) {
       if (error.response) {

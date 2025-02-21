@@ -26,8 +26,10 @@ import { Plus } from "lucide-react";
 import { cabangSchema } from "@/schemas/cabang";
 import { useState } from "react";
 import axios from "axios";
+import { useRefetch } from "@/context/refetch";
 
 export function AddForm() {
+  const { handleRefetch } = useRefetch();
   const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm({
@@ -45,6 +47,7 @@ export function AddForm() {
           form.reset();
           toast.success("Cabang berhasil ditambahkan");
           setIsOpen(false);
+          handleRefetch("fetch-cabang");
         }
       })
       .catch((error) => {

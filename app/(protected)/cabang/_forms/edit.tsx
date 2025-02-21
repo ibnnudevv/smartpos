@@ -27,12 +27,14 @@ import { Cabang } from "@prisma/client";
 import axios from "axios";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { cabangSchema } from "@/schemas/cabang";
+import { useRefetch } from "@/context/refetch";
 
 interface EditFormProps {
   cabang: Cabang;
 }
 
 export function EditForm({ cabang }: EditFormProps) {
+  const { handleRefetch } = useRefetch();
   const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm({
@@ -52,6 +54,7 @@ export function EditForm({ cabang }: EditFormProps) {
         form.reset();
         toast.success("Cabang berhasil diperbarui");
         setIsOpen(false);
+        handleRefetch("fetch-cabang");
       }
     } catch (error: any) {
       if (error.response) {

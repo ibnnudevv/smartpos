@@ -37,6 +37,7 @@ import { useEffect, useState } from "react";
 import { Role, User } from "@prisma/client";
 import axios from "axios";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { useRefetch } from "@/context/refetch";
 
 interface Cabang {
   id: number;
@@ -53,6 +54,7 @@ interface EditFormProps {
 }
 
 export function EditForm({ user }: EditFormProps) {
+  const { handleRefetch } = useRefetch();
   const [isOpen, setIsOpen] = useState(false);
   const [cabang, setCabang] = useState<Cabang[]>([]);
 
@@ -81,6 +83,7 @@ export function EditForm({ user }: EditFormProps) {
         form.reset();
         toast.success("Pengguna berhasil diperbarui");
         setIsOpen(false);
+        handleRefetch("fetch-karyawan");
       }
     } catch (error: any) {
       if (error.response) {

@@ -27,9 +27,10 @@ import { kategoriBarangSchema } from "@/schemas/kategori-barang";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { KategoriBarang } from "@prisma/client";
+import { useRefetch } from "@/context/refetch";
 
 interface KategoriBarangInterface {
-  id: number;
+  id: string;
   nama: string;
 }
 
@@ -41,6 +42,7 @@ const getKategoriBarang = async (): Promise<KategoriBarang[]> => {
 };
 
 export function AddForm() {
+  const { handleRefetch } = useRefetch();
   const [isOpen, setIsOpen] = useState(false);
   const [cabang, setKategoriBarang] = useState<KategoriBarangInterface[]>([]);
 
@@ -65,6 +67,7 @@ export function AddForm() {
           form.reset();
           toast.success("Kategori barang berhasil ditambahkan");
           setIsOpen(false);
+          handleRefetch("fetch-kategori-barang");
         }
       })
       .catch((error) => {
