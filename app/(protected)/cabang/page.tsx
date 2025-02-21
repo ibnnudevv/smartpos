@@ -16,7 +16,7 @@ const Page = () => {
 
   return (
     <>
-      <h1 className="font-medium">Daftar Cabang</h1>
+      <h1 className="font-medium text-lg">Daftar Cabang</h1>
       <DataTable columns={columns} data={res || []} />
     </>
   );

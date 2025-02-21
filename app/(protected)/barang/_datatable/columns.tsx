@@ -22,6 +22,12 @@ export const columns: ColumnDef<
   }
 >[] = [
   {
+    header: "No",
+    cell: ({ row }) => {
+      return <span>{row.index + 1}</span>;
+    },
+  },
+  {
     accessorKey: "kode",
     header: "Kode Barang",
   },
@@ -34,7 +40,10 @@ export const columns: ColumnDef<
     header: "Kategori",
     cell: ({ row }) => {
       return (
-        <Badge variant={"default"} className="text-xs font-normal">
+        <Badge
+          variant={"outline-secondary"}
+          className="font-normal rounded-full"
+        >
           {row.original.KategoriBarang.nama}
         </Badge>
       );
@@ -62,7 +71,7 @@ export const columns: ColumnDef<
       }).format(hargaDiskon);
 
       return diskon > 0 ? (
-        <div className="text-xs">
+        <div>
           <span className="block text-gray-400 line-through">
             {formattedHarga}
           </span>
@@ -71,7 +80,7 @@ export const columns: ColumnDef<
           </span>
         </div>
       ) : (
-        <span className="font-medium text-xs">{formattedHarga}</span>
+        <span className="font-medium">{formattedHarga}</span>
       );
     },
   },

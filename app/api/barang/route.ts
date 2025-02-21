@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { ValidationError } from "yup";
-import { barangSchema } from '@/schemas/barang';
+import { barangSchema } from "@/schemas/barang";
 
 // Update barang
 export async function PUT(req: Request) {
@@ -23,12 +23,30 @@ export async function PUT(req: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, statusCode: 200, message: "Barang berhasil diupdate", data: barang }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: true,
+        statusCode: 200,
+        message: "Barang berhasil diupdate",
+        data: barang,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     if (error instanceof ValidationError) {
-      return NextResponse.json({ success: false, statusCode: 400, message: error.errors.join(", ") }, { status: 400 });
+      return NextResponse.json(
+        { success: false, statusCode: 400, message: error.errors.join(", ") },
+        { status: 400 }
+      );
     }
-    return NextResponse.json({ success: false, statusCode: 500, message: "Terjadi kesalahan pada server" }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        statusCode: 500,
+        message: "Terjadi kesalahan pada server",
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -50,12 +68,30 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, statusCode: 201, message: "Barang berhasil ditambahkan", data: barang }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        statusCode: 201,
+        message: "Barang berhasil ditambahkan",
+        data: barang,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     if (error instanceof ValidationError) {
-      return NextResponse.json({ success: false, statusCode: 400, message: error.errors.join(", ") }, { status: 400 });
+      return NextResponse.json(
+        { success: false, statusCode: 400, message: error.errors.join(", ") },
+        { status: 400 }
+      );
     }
-    return NextResponse.json({ success: false, statusCode: 500, message: "Terjadi kesalahan pada server" }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        statusCode: 500,
+        message: "Terjadi kesalahan pada server",
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -63,12 +99,10 @@ export async function POST(req: Request) {
 export async function GET() {
   await auth.protect();
 
-  const barang = await prisma.barang.findMany(
-    {
-      where: { isActive: true },
-      include: { KategoriBarang: true },
-    }
-  );
+  const barang = await prisma.barang.findMany({
+    where: { isActive: true },
+    include: { KategoriBarang: true },
+  });
 
   return NextResponse.json({ success: true, data: barang });
 }
@@ -80,10 +114,13 @@ export async function GET_id(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
 
-  const barang = await prisma.barang.findUnique({ where: { id: Number(id) } });
+  const barang = await prisma.barang.findUnique({ where: { id: String(id) } });
 
   if (!barang) {
-    return NextResponse.json({ success: false, statusCode: 404, message: "Barang tidak ditemukan" }, { status: 404 });
+    return NextResponse.json(
+      { success: false, statusCode: 404, message: "Barang tidak ditemukan" },
+      { status: 404 }
+    );
   }
 
   return NextResponse.json({ success: true, data: barang });
@@ -97,10 +134,23 @@ export async function DELETE(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
-    await prisma.barang.update({ where: { id: Number(id) }, data: { isActive: false } });
+    await prisma.barang.update({
+      where: { id: String(id) },
+      data: { isActive: false },
+    });
 
-    return NextResponse.json({ success: true, statusCode: 200, message: "Barang berhasil dihapus" }, { status: 200 });
+    return NextResponse.json(
+      { success: true, statusCode: 200, message: "Barang berhasil dihapus" },
+      { status: 200 }
+    );
   } catch (error) {
-    return NextResponse.json({ success: false, statusCode: 500, message: "Terjadi kesalahan pada server" }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        statusCode: 500,
+        message: "Terjadi kesalahan pada server",
+      },
+      { status: 500 }
+    );
   }
 }

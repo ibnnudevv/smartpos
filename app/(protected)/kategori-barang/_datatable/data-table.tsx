@@ -167,20 +167,90 @@ export function DataTable<TData, TValue>({
             <ChevronLeft />
           </Button>
 
-          {Array.from({ length: table.getPageCount() }).map((_, index) => (
-            <Button
-              key={index}
-              variant={
-                table.getState().pagination.pageIndex === index
-                  ? "default"
-                  : "outline"
+          {/* Paginasi Dinamis (Digabung) */}
+          {(() => {
+            const pageCount = table.getPageCount();
+            const visiblePages = 3;
+            const pageIndex = table.getState().pagination.pageIndex;
+
+            if (pageCount <= visiblePages) {
+              return Array.from({ length: pageCount }).map((_, index) => (
+                <Button
+                  key={index}
+                  variant={pageIndex === index ? "default" : "outline"}
+                  size={"icon"}
+                  onClick={() => table.setPageIndex(index)}
+                >
+                  {index + 1}
+                </Button>
+              ));
+            }
+
+            const pages = [];
+            const startPage = Math.max(
+              0,
+              pageIndex - Math.floor(visiblePages / 2)
+            );
+            const endPage = Math.min(
+              pageCount - 1,
+              startPage + visiblePages - 1
+            );
+
+            if (startPage > 0) {
+              pages.push(
+                <Button
+                  key={0}
+                  variant={pageIndex === 0 ? "default" : "outline"}
+                  size={"icon"}
+                  onClick={() => table.setPageIndex(0)}
+                >
+                  1
+                </Button>
+              );
+              if (startPage > 1) {
+                pages.push(
+                  <span key="start-dots" className="mx-1">
+                    ...
+                  </span>
+                );
               }
-              size={"icon"}
-              onClick={() => table.setPageIndex(index)}
-            >
-              {index + 1}
-            </Button>
-          ))}
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+              pages.push(
+                <Button
+                  key={i}
+                  variant={pageIndex === i ? "default" : "outline"}
+                  size={"icon"}
+                  onClick={() => table.setPageIndex(i)}
+                >
+                  {i + 1}
+                </Button>
+              );
+            }
+
+            if (endPage < pageCount - 1) {
+              if (endPage < pageCount - 2) {
+                pages.push(
+                  <span key="end-dots" className="mx-1">
+                    ...
+                  </span>
+                );
+              }
+              pages.push(
+                <Button
+                  key={pageCount - 1}
+                  variant={pageIndex === pageCount - 1 ? "default" : "outline"}
+                  size={"icon"}
+                  onClick={() => table.setPageIndex(pageCount - 1)}
+                >
+                  {pageCount}
+                </Button>
+              );
+            }
+
+            return pages;
+          })()}
 
           {/* Tombol Next */}
           <Button

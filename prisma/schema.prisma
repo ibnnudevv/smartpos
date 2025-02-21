@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Cabang {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   nama      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -21,12 +21,12 @@ model Cabang {
 }
 
 model User {
-  id             Int               @id @default(autoincrement())
+  id             String            @id @default(uuid())
   nama           String
   username       String            @unique
   email          String?           @unique
   password       String
-  cabangId       Int
+  cabangId       String
   cabang         Cabang            @relation(fields: [cabangId], references: [id])
   role           Role
   createdAt      DateTime          @default(now())
@@ -38,7 +38,7 @@ model User {
 }
 
 model Barang {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   kode      String   @unique // ex: BRG-001
   nama      String
   harga     Int
@@ -51,11 +51,11 @@ model Barang {
   DetailTransaksi  DetailTransaksi[]
   LogBarang        LogBarang[]
   KategoriBarang   KategoriBarang    @relation(fields: [kategoriBarangId], references: [id])
-  kategoriBarangId Int
+  kategoriBarangId String
 }
 
 model KategoriBarang {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   nama      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -65,10 +65,10 @@ model KategoriBarang {
 }
 
 model Stok {
-  id        Int      @id @default(autoincrement())
-  barangId  Int
+  id        String   @id @default(uuid())
+  barangId  String
   barang    Barang   @relation(fields: [barangId], references: [id])
-  cabangId  Int
+  cabangId  String
   cabang    Cabang   @relation(fields: [cabangId], references: [id])
   jumlah    Int
   createdAt DateTime @default(now())
@@ -77,10 +77,10 @@ model Stok {
 }
 
 model Transaksi {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   kode      String   @unique // ex: TRX-001
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    String
   subTotal  Int?
   diskon    Int?
   total     Int?
@@ -92,13 +92,13 @@ model Transaksi {
 }
 
 model DetailTransaksi {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @default(uuid())
   transaksi   Transaksi @relation(fields: [transaksiId], references: [id])
   cabang      Cabang    @relation(fields: [cabangId], references: [id])
-  cabangId    Int
-  transaksiId Int
+  cabangId    String
+  transaksiId String
   barang      Barang    @relation(fields: [barangId], references: [id])
-  barangId    Int
+  barangId    String
   jumlah      Int
   harga       Int
   diskon      Int?
@@ -106,28 +106,26 @@ model DetailTransaksi {
   updatedAt   DateTime  @updatedAt
   isActive    Boolean   @default(true)
 
-  createdUser   User @relation("createdBy", fields: [createdUserId], references: [id])
-  createdUserId Int
+  createdUser   User   @relation("createdBy", fields: [createdUserId], references: [id])
+  createdUserId String
 }
 
 // model untuk pencatatan barang masuk, barang keluar, dan stok barang
 model LogBarang {
-  id       Int            @id @default(autoincrement())
-  barangId Int
+  id       String         @id @default(uuid())
+  barangId String
   barang   Barang         @relation(fields: [barangId], references: [id])
-  cabangId Int
+  cabangId String
   cabang   Cabang         @relation(fields: [cabangId], references: [id])
   jumlah   Int
-  harga    Int?
-  total    Int?
   jenis    JenisLogBarang
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
 
-  createdUser   User @relation("createdBy", fields: [createdUserId], references: [id])
-  createdUserId Int
+  createdUser   User?   @relation("createdBy", fields: [createdUserId], references: [id])
+  createdUserId String?
 }
 
 enum JenisLogBarang {

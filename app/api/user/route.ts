@@ -151,7 +151,7 @@ export async function GET_id(req: NextRequest) {
 
   const user = await prisma.user.findUnique({
     where: {
-      id: Number(id),
+      id: String(id),
     },
     include: {
       cabang: true,
@@ -182,12 +182,12 @@ export async function DELETE(req: NextRequest) {
 
     await prisma.user.update({
       where: {
-        id: Number(id),
+        id: String(id),
       },
       data: {
         isActive: false,
       },
-    })
+    });
 
     return NextResponse.json(
       {
@@ -204,7 +204,7 @@ export async function DELETE(req: NextRequest) {
         statusCode: 500,
         message: "Terjadi kesalahan pada server",
       },
-      { status:500 }
+      { status: 500 }
     );
   }
 }

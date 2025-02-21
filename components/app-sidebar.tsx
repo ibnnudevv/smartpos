@@ -50,7 +50,7 @@ const data = {
         {
           title: "Stok",
           icon: FolderArchive,
-          url: "#",
+          url: "/stok",
           Activity,
         },
         {

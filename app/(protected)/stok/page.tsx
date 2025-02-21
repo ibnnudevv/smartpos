@@ -9,14 +9,14 @@ import axios from "axios";
 const Page = () => {
   const [res, setRes] = useState([]);
   useEffect(() => {
-    axios.get("/api/barang").then((response) => {
+    axios.get("/api/stok").then((response) => {
       setRes(response.data.data);
     });
   }, []);
 
   return (
     <>
-      <h1 className="font-medium text-lg">Daftar Barang</h1>
+      <h1 className="font-medium text-lg">Daftar Stok</h1>
       <DataTable columns={columns} data={res || []} />
     </>
   );

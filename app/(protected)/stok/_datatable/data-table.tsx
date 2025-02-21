@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AddForm } from "../_forms/add";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
@@ -32,6 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Cabang } from "@prisma/client";
+import axios from "axios";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -69,15 +71,45 @@ export function DataTable<TData, TValue>({
     manualPagination: false,
   });
 
+  const [listCabang, setListCabang] = useState<Cabang[]>([]);
+  const fetchCabang = async () => {
+    const response = await axios.get("/api/cabang?isActive=true");
+    setListCabang(response.data.data);
+  };
+  useEffect(() => {
+    fetchCabang();
+  }, []);
+
   return (
     <>
       <div className="flex items-center py-4 space-x-4 justify-between">
         <div className="flex items-center gap-2">
+          <Select
+            onValueChange={(value) => {
+              table
+                .getColumn("cabang")
+                ?.setFilterValue(value === "all" ? undefined : value);
+            }}
+          >
+            <SelectTrigger className="w-fit">
+              <SelectValue placeholder="Semua Cabang" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={"all"}>Semua Cabang</SelectItem>
+              {listCabang.map((cabang) => (
+                <SelectItem key={cabang.id} value={cabang.nama.toString()}>
+                  {cabang.nama}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Input
             placeholder="Cari berdasarkan nama..."
-            value={(table.getColumn("nama")?.getFilterValue() as string) ?? ""}
+            value={
+              (table.getColumn("barang")?.getFilterValue() as string) ?? ""
+            }
             onChange={(event) =>
-              table.getColumn("nama")?.setFilterValue(event.target.value)
+              table.getColumn("barang")?.setFilterValue(event.target.value)
             }
           />
         </div>
