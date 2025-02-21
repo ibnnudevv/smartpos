@@ -96,11 +96,25 @@ export async function POST(req: Request) {
 }
 
 // Ambil semua barang
-export async function GET() {
-  await auth.protect();
+export async function GET(req: NextRequest) {
+  // await auth.protect();
+
+  const { searchParams } = new URL(req.url);
+  const kode_barang = searchParams.get("kode_barang");
+
+  if (kode_barang) {
+    const barang = await prisma.barang.findMany({
+      where: { kode: kode_barang, isActive: true },
+      orderBy: { createdAt: "desc" },
+      include: { KategoriBarang: true },
+    });
+
+    return NextResponse.json({ success: true, data: barang });
+  }
 
   const barang = await prisma.barang.findMany({
     where: { isActive: true },
+    orderBy: { createdAt: "desc" },
     include: { KategoriBarang: true },
   });
 

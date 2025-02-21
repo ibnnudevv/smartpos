@@ -1,7 +1,8 @@
 "use client";
-
+import { useBarcode } from "next-barcode";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
+import { useQRCode } from "next-qrcode";
 
 import {
   DropdownMenu,
@@ -31,6 +32,35 @@ export const columns: ColumnDef<
   {
     accessorKey: "kode",
     header: "Kode Barang",
+    cell: ({ row }) => {
+      const { inputRef } = useBarcode({
+        // value: `http://192.168.0.100:3000/barang?kode_barang=${row.original.kode}`,
+        value: row.original.kode,
+        options: {
+          displayValue: false,
+          flat: true,
+          fontSize: 12,
+          background: "transparent",
+        },
+      });
+      return <img ref={inputRef} className="w-24 h-10" />;
+      // const { Canvas } = useQRCode();
+      // return (
+      //   <Canvas
+      //     text={`http://192.168.0.100:3000/api/barang?kode_barang=${row.original.kode}`}
+      //     options={{
+      //       errorCorrectionLevel: "M",
+      //       margin: 3,
+      //       scale: 4,
+      //       width: 200,
+      //       color: {
+      //         dark: "#010599FF",
+      //         light: "#FFBF60FF",
+      //       },
+      //     }}
+      //   />
+      // );
+    },
   },
   {
     accessorKey: "nama",
@@ -73,10 +103,10 @@ export const columns: ColumnDef<
 
       return diskon > 0 ? (
         <div>
-          <span className="block text-gray-400 line-through">
+          <span className="block text-xs text-gray-400 line-through">
             {formattedHarga}
           </span>
-          <span className="block text-green-800 font-medium">
+          <span className="block text-black font-medium">
             {formattedHargaDiskon}
           </span>
         </div>
@@ -90,7 +120,13 @@ export const columns: ColumnDef<
     header: "Diskon",
     cell: ({ row }) => {
       const diskon = row.original.diskon;
-      return diskon == 0 ? "-" : diskon + "%";
+      return diskon == 0 ? (
+        "-"
+      ) : (
+        <div className="font-medium rounded-full border border-gray-200 w-9 h-9 text-center text-xs flex items-center justify-center">
+          {diskon}%
+        </div>
+      );
     },
   },
   {

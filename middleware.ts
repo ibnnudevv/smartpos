@@ -4,16 +4,21 @@ import { NextResponse } from "next/server";
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)"]);
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 const isAPIRoute = createRouteMatcher(["/api(.*)"]);
+const isPublicAPIRoute = createRouteMatcher(["/api/barang(.*)"]);
 
 export default clerkMiddleware(async (auth, request) => {
-  const { userId } = await auth();
+  // Biarkan request lanjut jika merupakan API publik
+  if (isPublicAPIRoute(request)) {
+    return NextResponse.next();
+  }
 
+  const { userId } = await auth();
   const url = new URL(request.url);
 
   // 1. Redirect ke sign-in jika belum login dan mencoba akses root atau protected route
   if (!userId && (url.pathname === "/" || isProtectedRoute(request))) {
     const signInUrl = new URL("/sign-in", request.url);
-    if (url.pathname !== "/") { // Tambahkan redirect_url hanya jika bukan di root
+    if (url.pathname !== "/") {
       signInUrl.searchParams.set("redirect_url", request.url);
     }
     return NextResponse.redirect(signInUrl);
@@ -24,16 +29,10 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // 3.  Jika sudah login dan di root, redirect ke dashboard (opsional, tapi disarankan)
+  // 3. Jika sudah login dan di root, redirect ke dashboard (opsional)
   if (userId && url.pathname === "/") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
-
-  // 4. Jika sudah login dan mencoba akses API, lanjutkan request
-  if (userId && isAPIRoute(request)) {
-    return NextResponse.next();
-  }
-
 
   return NextResponse.next();
 });
