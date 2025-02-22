@@ -37,9 +37,9 @@ export const columns: ColumnDef<
         // value: `http://192.168.0.100:3000/barang?kode_barang=${row.original.kode}`,
         value: row.original.kode,
         options: {
-          displayValue: false,
+          displayValue: true,
           flat: true,
-          fontSize: 12,
+          fontSize: 14,
           background: "transparent",
         },
       });

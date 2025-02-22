@@ -53,17 +53,16 @@ export function AddForm() {
     });
   }, []);
 
-  const generateCode = () => {
-    // BRG-0001
-    const kode = "BRG-";
-    const random = Math.floor(Math.random() * 10000);
-    return kode + random.toString().padStart(4, "0");
+  const generateCode = (nama: string) => {
+    // Nama Barang -> NBtimestamp
+    const timestamp = Date.now();
+    const code = `${nama.substring(0, 2).toUpperCase()}${timestamp}`;
+    return code;
   };
 
   const form = useForm({
     resolver: yupResolver(barangSchema),
     defaultValues: {
-      kode: generateCode(),
       nama: "",
       kategoriBarangId: undefined,
       harga: 0,
@@ -73,6 +72,8 @@ export function AddForm() {
 
   const onSubmit = async (data: any) => {
     try {
+      data.kode = generateCode(data.nama);
+
       const response = await axios.post(`/api/barang`, data);
       if (response.status === 201) {
         form.reset();
@@ -88,6 +89,8 @@ export function AddForm() {
       }
     }
   };
+
+  console.log(form.formState.errors);
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
@@ -106,7 +109,7 @@ export function AddForm() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4 py-4 h-[calc(100%-4rem)] overflow-y-auto"
           >
-            <FormField
+            {/* <FormField
               control={form.control}
               name="kode"
               render={({ field }) => (
@@ -124,7 +127,7 @@ export function AddForm() {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <FormField
               control={form.control}
               name="nama"
