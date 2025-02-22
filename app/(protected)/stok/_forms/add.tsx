@@ -70,6 +70,8 @@ export function AddForm() {
   });
 
   const onSubmit = async (data: any) => {
+    console.log("data", data);
+
     const username = user?.username;
     const payload = {
       ...data,
@@ -119,9 +121,7 @@ export function AddForm() {
                 <FormItem>
                   <FormLabel>Barang</FormLabel>
                   <FormControl>
-                    <Select
-                      onValueChange={(value) => field.onChange(parseInt(value))}
-                    >
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Pilih barang" />
                       </SelectTrigger>

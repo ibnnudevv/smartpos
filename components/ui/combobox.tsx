@@ -20,6 +20,14 @@ import { cn } from "@/lib/utils";
 
 export type ComboboxOptions = {
   id: string;
+  kode?: string;
+  nama?: string;
+  pid?: string;
+  qty?: number;
+  harga?: number;
+  diskon?: string | null | number;
+  total?: number;
+  stok?: number;
   value: string;
   label: string;
 };

@@ -1,7 +1,17 @@
 import { Input } from "@/components/ui/input";
 import React from "react";
 
-const FooterComponent = () => {
+const FooterComponent = ({
+  diskon,
+  subTotal,
+  pajak,
+  total,
+}: {
+  diskon: number;
+  subTotal: number;
+  pajak: number;
+  total: number;
+}) => {
   return (
     <div className="flex justify-end gap-8 mt-4">
       <div>
@@ -10,15 +20,33 @@ const FooterComponent = () => {
       </div>
       <div>
         <div className="text-sm text-muted-foreground">SUBTOTAL:</div>
-        <div className="font-bold">133,100</div>
+        <div className="font-bold">
+          {subTotal.toLocaleString("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          })}
+        </div>
       </div>
       <div>
         <div className="text-sm text-muted-foreground">PAJAK:</div>
-        <div className="font-bold">0</div>
+        <div className="font-bold">
+          {pajak.toLocaleString("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          })}
+        </div>
       </div>
       <div>
         <div className="text-sm text-muted-foreground">TOTAL:</div>
-        <div className="font-bold text-[#C41E3A]">126,445,999</div>
+        <div className="font-bold text-[#C41E3A]">
+          {total.toLocaleString("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          })}
+        </div>
       </div>
     </div>
   );

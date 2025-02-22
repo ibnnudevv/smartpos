@@ -101,6 +101,14 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const kode_barang = searchParams.get("kode_barang");
+  const withParam = searchParams.get("with");
+  let include: { [key: string]: boolean } = {};
+  if (withParam) {
+    const withArray = withParam.split(",");
+    withArray.forEach((item) => {
+      include[item] = true;
+    });
+  }
 
   if (kode_barang) {
     const barang = await prisma.barang.findMany({
@@ -115,7 +123,7 @@ export async function GET(req: NextRequest) {
   const barang = await prisma.barang.findMany({
     where: { isActive: true },
     orderBy: { createdAt: "desc" },
-    include: { KategoriBarang: true },
+    include: include,
   });
 
   return NextResponse.json({ success: true, data: barang });

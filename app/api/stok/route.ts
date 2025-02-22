@@ -1,10 +1,35 @@
 import prisma from "@/lib/prisma";
 import { stokSchema } from "@/schemas/stok";
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ValidationError } from "yup";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+
+  const isActive = searchParams.get("isActive");
+  if (isActive === "true") {
+    const response = await prisma.stok.findMany({
+      where: {
+        jumlah: {
+          gt: 0,
+        },
+        isActive: true,
+      },
+      include: {
+        barang: true,
+        cabang: true,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      statusCode: 200,
+      message: "Data stok barang berhasil ditemukan",
+      data: response,
+    });
+  }
+
   const response = await prisma.stok.findMany({
     include: {
       barang: true,
@@ -29,7 +54,6 @@ export async function POST(req: Request) {
     await stokSchema.validate(body, { abortEarly: false });
 
     const { barangId, cabangId, jumlah, createdUserId } = body;
-    console.log("body", body);
 
     const result = await prisma.$transaction(async (tx) => {
       const existingStock = await tx.stok.findFirst({
@@ -63,8 +87,6 @@ export async function POST(req: Request) {
         barangId: String(barangId),
         cabangId: String(cabangId),
         jumlah,
-        harga: 0,
-        total: 0,
         jenis: jenisLog,
       };
 
@@ -75,6 +97,7 @@ export async function POST(req: Request) {
       const logBarang = await tx.logBarang.create({
         data: logData,
       });
+
       return { stok, logBarang };
     });
 
@@ -98,6 +121,8 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    console.log(error);
 
     return NextResponse.json(
       {
