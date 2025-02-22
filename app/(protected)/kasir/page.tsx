@@ -29,6 +29,26 @@ export default function Page() {
     total: 0,
   });
 
+  const calculateItemPrice = (basePrice: number, discount: number) => {
+    const discountAmount = basePrice * (discount / 100);
+    return basePrice - discountAmount;
+  };
+
+  const recalculateTransaction = (items: any[]) => {
+    const subTotal = items.reduce((acc, item) => {
+      const itemTotal = item.qty * calculateItemPrice(item.harga, item.diskon);
+      return acc + itemTotal;
+    }, 0);
+
+    const total = subTotal - transaction.diskon + transaction.pajak;
+
+    setTransaction((prev: Transaksi) => ({
+      ...prev,
+      subTotal,
+      total: Math.max(0, total), // Ensure total never goes below 0
+    }));
+  };
+
   const fetchItems = async () => {
     const response = await fetch("/api/stok?isActive=true", {
       method: "GET",
@@ -40,25 +60,23 @@ export default function Page() {
         jumlah: number;
       }[] = response?.data;
 
-    const items = data.map((item) => ({
-      id: item.barang.id,
-      kode: item.barang.kode,
-      nama: item.barang.nama,
-      pid: null,
-      qty: 1,
-      harga:
-        (item?.barang?.diskon ?? 0) > 0
-          ? item.barang.harga -
-            item.barang.harga * ((item.barang.diskon ?? 0) / 100)
-          : item.barang.harga,
-      diskon: item.barang.diskon ?? 0,
-      total:
-        (item?.barang?.diskon ?? 0) > 0
-          ? item.barang.harga -
-            item.barang.harga * ((item.barang.diskon ?? 0) / 100)
-          : item.barang.harga,
-      stok: item.jumlah,
-    }));
+    const items = data.map((item) => {
+      const basePrice = item.barang.harga;
+      const discount = item.barang.diskon ?? 0;
+      const finalPrice = calculateItemPrice(basePrice, discount);
+
+      return {
+        id: item.barang.id,
+        kode: item.barang.kode,
+        nama: item.barang.nama,
+        pid: null,
+        qty: 1,
+        harga: basePrice,
+        diskon: discount,
+        total: finalPrice,
+        stok: item.jumlah,
+      };
+    });
 
     setOptionItems(
       items.map((item) => ({
@@ -68,23 +86,19 @@ export default function Page() {
         nama: item.nama,
         pid: item.pid ?? "",
         qty: item.qty,
-        total: item.diskon
-          ? item.harga - item.harga * (item.diskon / 100)
-          : item.harga,
+        total: calculateItemPrice(item.harga, item.diskon),
         stok: item.stok,
         label: `${item.kode} | ${item.nama} | ${
           item.diskon ? `Diskon ${item.diskon}% | ` : ""
         }Rp. ${item.harga.toLocaleString()} | [stok: ${item.stok}]`,
         id: item.id,
-        harga: item.diskon
-          ? item.harga - item.harga * (item.diskon / 100)
-          : item.harga,
+        harga: item.harga,
       }))
     );
   };
 
   const handleAddQty = (id: string) => {
-    const newItems: typeof tableItems = tableItems.map((item) => {
+    const newItems = tableItems.map((item) => {
       if (item.id === id) {
         const stok = optionItems.find((opt) => opt.id === id)?.stok;
         if (stok !== undefined && item.qty + 1 > stok) {
@@ -92,18 +106,17 @@ export default function Page() {
           return item;
         }
 
-        item.qty += 1;
-        item.total = item.qty * item.harga;
-
-        setTransaction((prev: Transaksi) => ({
-          ...prev,
-          subTotal: (prev.subTotal ?? 0) + item.harga,
-          total: (prev.total ?? 0) + item.harga,
-        }));
+        return {
+          ...item,
+          qty: item.qty + 1,
+          total: calculateItemPrice(item.harga, item.diskon) * (item.qty + 1),
+        };
       }
       return item;
     });
+
     setTableItems(newItems);
+    recalculateTransaction(newItems);
   };
 
   const handleSubtractQty = (id: string) => {
@@ -111,42 +124,27 @@ export default function Page() {
       .map((item) => {
         if (item.id === id) {
           if (item.qty === 1) {
-            setTransaction((prev: Transaksi) => ({
-              ...prev,
-              subTotal: (prev.subTotal ?? 0) - item.harga,
-              total: (prev.total ?? 0) - item.harga,
-            }));
             return null;
           }
 
-          item.qty -= 1;
-          item.total = item.qty * item.harga;
-
-          setTransaction((prev: Transaksi) => ({
-            ...prev,
-            subTotal: (prev.subTotal ?? 0) - item.harga,
-            total: (prev.total ?? 0) - item.harga,
-          }));
+          return {
+            ...item,
+            qty: item.qty - 1,
+            total: calculateItemPrice(item.harga, item.diskon) * (item.qty - 1),
+          };
         }
         return item;
       })
       .filter(Boolean);
 
     setTableItems(newItems);
+    recalculateTransaction(newItems);
   };
 
   const handleRemoveItem = (id: string) => {
-    const removedItem = tableItems.find((item) => item.id === id);
-    if (removedItem) {
-      setTransaction((prev: Transaksi) => ({
-        ...prev,
-        subTotal: (prev.subTotal ?? 0) - removedItem.harga * removedItem.qty,
-        total: (prev.total ?? 0) - removedItem.harga * removedItem.qty,
-      }));
-    }
-
     const newItems = tableItems.filter((item) => item.id !== id);
     setTableItems(newItems);
+    recalculateTransaction(newItems);
   };
 
   const handleSelect = (option: ComboboxOptions) => {
@@ -154,25 +152,24 @@ export default function Page() {
 
     const item = optionItems.find((item) => item.value === option.value);
     if (item) {
+      const harga = Number(item.harga) ?? 0;
+      const diskon = Number(item.diskon) ?? 0;
+      const finalPrice = calculateItemPrice(harga, diskon);
       const newItem = {
         id: item.id,
         kode: item.kode,
         nama: item.label.split(" | ")[1],
         pid: item.kode,
         qty: 1,
-        harga: item.diskon
-          ? (item.harga ?? 0) - (item.harga ?? 0) * (Number(item.diskon) / 100)
-          : item.harga,
+        harga: item.harga,
         diskon: item.diskon ?? 0,
-        total: item.diskon
-          ? Number(item.harga ?? 0) -
-            Number(item.harga ?? 0) * (Number(item.diskon ?? 0) / 100)
-          : item.harga,
+        total: finalPrice,
       };
 
       const existItem = tableItems.find(
         (existingItem) => existingItem.id === newItem.id
       );
+
       if (existItem) {
         const stok = optionItems.find((opt) => opt.id === item.id)?.stok;
         if (stok !== undefined && existItem.qty + 1 > stok) {
@@ -185,52 +182,48 @@ export default function Page() {
             return {
               ...existingItem,
               qty: existingItem.qty + 1,
-              total: (existingItem.qty + 1) * existingItem.harga,
+              total: finalPrice * (existingItem.qty + 1),
             };
           }
           return existingItem;
         });
 
         setTableItems(updatedItems);
-
-        setTransaction((prev: Transaksi) => ({
-          ...prev,
-          subTotal: (prev.subTotal ?? 0) + (item.harga ?? 0),
-          total: (prev.total ?? 0) + (item.harga ?? 0),
-        }));
-
+        recalculateTransaction(updatedItems);
         return;
       }
 
-      setTableItems([...tableItems, newItem]);
-      setTransaction((prev: Transaksi) => ({
-        ...prev,
-        subTotal: (prev.subTotal ?? 0) + (item.harga ?? 0),
-        total: (prev.total ?? 0) + (item.harga ?? 0),
-      }));
+      const updatedItems = [...tableItems, newItem];
+      setTableItems(updatedItems);
+      recalculateTransaction(updatedItems);
     }
   };
 
   const handleDiskon = (id: string, diskon: string) => {
-    // if diskon contains %, then calculate the diskon
-    const diskonValue = diskon.includes("%")
-      ? (parseInt(diskon.replace("%", "")) / 100) *
-        tableItems.find((item) => item.id === id).harga
-      : parseInt(diskon);
+    const item = tableItems.find((item) => item.id === id);
+    if (!item) return;
+
+    let discountValue: number;
+    if (diskon.includes("%")) {
+      const percentageDiscount = parseInt(diskon.replace("%", ""));
+      discountValue = (percentageDiscount / 100) * item.harga;
+    } else {
+      discountValue = parseInt(diskon) || 0;
+    }
 
     const newItems = tableItems.map((item) => {
       if (item.id === id) {
-        item.diskon = diskon;
-        item.total = item.harga - diskonValue;
+        return {
+          ...item,
+          diskon: diskon,
+          total: (item.harga - discountValue) * item.qty,
+        };
       }
       return item;
     });
 
     setTableItems(newItems);
-    setTransaction((prev: Transaksi) => ({
-      ...prev,
-      total: (prev.total ?? 0) - diskonValue,
-    }));
+    recalculateTransaction(newItems);
   };
 
   useEffect(() => {
