@@ -199,6 +199,28 @@ export default function Page() {
     }
   };
 
+  const handleChangeQty = (id: string, qty: number) => {
+    const newItems = tableItems.map((item) => {
+      if (item.id === id) {
+        const stok = optionItems.find((opt) => opt.id === id)?.stok;
+        if (stok !== undefined && qty > stok) {
+          toast.error("Stok tidak cukup");
+          return item;
+        }
+
+        return {
+          ...item,
+          qty: qty,
+          total: calculateItemPrice(item.harga, item.diskon) * qty,
+        };
+      }
+      return item;
+    });
+
+    setTableItems(newItems);
+    recalculateTransaction(newItems);
+  };
+
   const handleDiskon = (id: string, diskon: string) => {
     const item = tableItems.find((item) => item.id === id);
     if (!item) return;
@@ -273,9 +295,9 @@ export default function Page() {
                   handleAddQty={handleAddQty}
                   handleSubtractQty={handleSubtractQty}
                   handleRemoveItem={handleRemoveItem}
+                  handleChangeQty={handleChangeQty}
                 />
                 <FooterComponent
-                  diskon={transaction.diskon}
                   subTotal={transaction.subTotal}
                   pajak={transaction.pajak}
                   total={transaction.total}

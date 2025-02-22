@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, { FC, useRef, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -8,29 +7,62 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MinusCircle, PlusCircle, Trash } from "lucide-react";
+import { Trash } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 
-const TableItemComponent = ({
+interface Item {
+  id: number;
+  kode: string;
+  nama: string;
+  pid: string;
+  qty: number;
+  harga: number;
+  diskon: string;
+  total: number;
+}
+
+interface TableItemComponentProps {
+  items: Item[];
+  handleAddQty: (id: string) => void;
+  handleSubtractQty: (id: string) => void;
+  handleRemoveItem: (id: string) => void;
+  handleChangeQty: (id: string, qty: number) => void;
+}
+
+const formatCurrency = (amount: number): string => {
+  return amount.toLocaleString("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  });
+};
+
+const TableItemComponent: FC<TableItemComponentProps> = ({
   items,
   handleAddQty,
   handleSubtractQty,
   handleRemoveItem,
-}: {
-  items: {
-    id: number;
-    kode: string;
-    nama: string;
-    pid: string;
-    qty: number;
-    harga: number;
-    diskon: string;
-    total: number;
-  }[];
-  handleAddQty: (id: string) => void;
-  handleSubtractQty: (id: string) => void;
-  handleRemoveItem: (id: string) => void;
+  handleChangeQty,
 }) => {
+  const inputRefs = useRef<
+    Record<number, React.RefObject<HTMLInputElement | null>>
+  >({});
+
+  useEffect(() => {
+    items.forEach((item) => {
+      if (!inputRefs.current[item.id]) {
+        inputRefs.current[item.id] = React.createRef();
+      }
+    });
+  }, [items]);
+
+  const handleRowClick = (itemId: number) => {
+    if (inputRefs.current[itemId] && inputRefs.current[itemId].current) {
+      inputRefs.current[itemId].current?.focus();
+    }
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -39,81 +71,60 @@ const TableItemComponent = ({
             <TableHead>No</TableHead>
             <TableHead>Kode Item</TableHead>
             <TableHead>Nama Item</TableHead>
-            <TableHead>PID</TableHead>
             <TableHead>Qty</TableHead>
             <TableHead>Harga</TableHead>
             <TableHead>Subtotal</TableHead>
-            <TableHead></TableHead>
+            <TableHead>Ubah | Hapus</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items.length > 0 &&
-            items.map((item, index) => (
-              <TableRow key={item.id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{item.kode}</TableCell>
-                <TableCell>{item.nama}</TableCell>
-                <TableCell>{item.pid}</TableCell>
-                <TableCell>{item.qty}</TableCell>
-                <TableCell>
-                  {item.diskon ? (
-                    <div>
-                      <span className="line-through text-gray-400 text-xs">
-                        {item.harga.toLocaleString("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                          minimumFractionDigits: 0,
-                        })}
-                      </span>
-                      <br />
-                      <span>
-                        {(
-                          item.harga -
-                          (item.harga * parseInt(item.diskon)) / 100
-                        ).toLocaleString("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                          minimumFractionDigits: 0,
-                        })}
-                      </span>
-                    </div>
-                  ) : (
-                    item.harga.toLocaleString("id-ID", {
-                      style: "currency",
-                      currency: "IDR",
-                      minimumFractionDigits: 0,
-                    })
-                  )}
-                </TableCell>
-                <TableCell>
-                  {item.total.toLocaleString("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    minimumFractionDigits: 0,
-                  })}
-                </TableCell>
-                <TableCell>
-                  <div className="md:flex gap-4">
-                    <div className="md:flex gap-4">
-                      <PlusCircle
-                        onClick={() => handleAddQty(item.id.toString())}
-                        className="cursor-pointer w-5 h-5 text-green-500"
-                      />
-                      <span className="cursor-pointer">{item.qty}</span>
-                      <MinusCircle
-                        onClick={() => handleSubtractQty(item.id.toString())}
-                        className="cursor-pointer w-5 h-5 text-red-500"
-                      />
-                    </div>
-                    {" | "}
-                    <Trash
-                      onClick={() => handleRemoveItem(item.id.toString())}
-                      className="cursor-pointer w-5 h-5 text-red-500"
-                    />
+          {items.map((item, index) => (
+            <TableRow key={item.id} onClick={() => handleRowClick(item.id)}>
+              <TableCell>{index + 1}</TableCell>
+              <TableCell>{item.kode}</TableCell>
+              <TableCell>{item.nama}</TableCell>
+              <TableCell>
+                <Input
+                  ref={inputRefs.current[item.id]}
+                  value={item.qty}
+                  className="w-24"
+                  type="number"
+                  onInput={(e) => {
+                    // prevent 0 or isNaN or nagative
+                    const value = parseInt(e.currentTarget.value) || 1;
+                    handleChangeQty(item.id.toString(), value);
+                  }}
+                />
+              </TableCell>
+              <TableCell>
+                {item.diskon ? (
+                  <div>
+                    <span className="line-through text-gray-400 text-xs">
+                      {formatCurrency(item.harga)}
+                    </span>
+                    <br />
+                    <span>
+                      {formatCurrency(
+                        item.harga - (item.harga * parseInt(item.diskon)) / 100
+                      )}
+                    </span>
                   </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                ) : (
+                  formatCurrency(item.harga)
+                )}
+              </TableCell>
+              <TableCell>{formatCurrency(item.total)}</TableCell>
+              <TableCell>
+                <div className="md:flex gap-2 items-center">
+                  <Separator orientation="vertical" className="h-5" />
+                  <Trash
+                    onClick={() => handleRemoveItem(item.id.toString())}
+                    className="cursor-pointer w-5 h-5 text-red-500"
+                  />
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>
