@@ -3,12 +3,16 @@
 import * as React from "react";
 import {
   Activity,
+  Archive,
   Book,
   CreditCard,
   FolderArchive,
   FolderOpen,
+  GalleryVerticalEnd,
   GitBranch,
+  Monitor,
   NotebookText,
+  Sparkles,
   SquareTerminal,
   Users,
   WalletCards,
@@ -23,9 +27,33 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useUser } from "@clerk/nextjs";
+import { isCancel } from "axios";
 
 const data = {
   navMain: [
+    {
+      title: "Point of Sale",
+      url: "/",
+      icon: Sparkles,
+      isActive: true,
+      items: [
+        {
+          title: "Kasir",
+          icon: Monitor,
+          url: "/kasir",
+        },
+        {
+          title: "Rekap Kas",
+          icon: GalleryVerticalEnd,
+          url: "/rekap-kas",
+        },
+        {
+          title: "Draft Penjualan",
+          icon: Archive,
+          url: "/draft-penjualan",
+        },
+      ],
+    },
     {
       title: "Master Data",
       url: "#",
@@ -51,7 +79,6 @@ const data = {
           title: "Stok",
           icon: FolderArchive,
           url: "/stok",
-          Activity,
         },
         {
           title: "Cabang",
@@ -117,7 +144,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarContent>
+      <SidebarContent className="gap-0">
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
