@@ -74,7 +74,7 @@ const TableItemComponent: FC<TableItemComponentProps> = ({
             <TableHead>Qty</TableHead>
             <TableHead>Harga</TableHead>
             <TableHead>Subtotal</TableHead>
-            <TableHead>Ubah | Hapus</TableHead>
+            <TableHead>Hapus</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -115,13 +115,10 @@ const TableItemComponent: FC<TableItemComponentProps> = ({
               </TableCell>
               <TableCell>{formatCurrency(item.total)}</TableCell>
               <TableCell>
-                <div className="md:flex gap-2 items-center">
-                  <Separator orientation="vertical" className="h-5" />
-                  <Trash
-                    onClick={() => handleRemoveItem(item.id.toString())}
-                    className="cursor-pointer w-5 h-5 text-red-500"
-                  />
-                </div>
+                <Trash
+                  onClick={() => handleRemoveItem(item.id.toString())}
+                  className="cursor-pointer w-5 h-5 text-red-500"
+                />
               </TableCell>
             </TableRow>
           ))}

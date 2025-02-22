@@ -14,9 +14,16 @@ export async function GET(req: NextRequest) {
         where: {
           isActive: Boolean(isActive),
         },
+        orderBy: {
+          isActive: "desc",
+        },
       });
     } else {
-      cabang = await prisma.cabang.findMany();
+      cabang = await prisma.cabang.findMany({
+        orderBy: {
+          isActive: "desc",
+        },
+      });
     }
 
     return NextResponse.json(
