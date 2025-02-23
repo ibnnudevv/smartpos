@@ -103,17 +103,21 @@ const TableItemComponent: FC<TableItemComponentProps> = ({
                       {formatCurrency(item.harga)}
                     </span>
                     <br />
-                    <span>
+                    <span className="font-medium">
                       {formatCurrency(
                         item.harga - (item.harga * parseInt(item.diskon)) / 100
                       )}
                     </span>
                   </div>
                 ) : (
-                  formatCurrency(item.harga)
+                  <div className="font-medium">
+                    {formatCurrency(item.harga)}
+                  </div>
                 )}
               </TableCell>
-              <TableCell>{formatCurrency(item.total)}</TableCell>
+              <TableCell className="font-medium">
+                {formatCurrency(item.total)}
+              </TableCell>
               <TableCell>
                 <Trash
                   onClick={() => handleRemoveItem(item.id.toString())}

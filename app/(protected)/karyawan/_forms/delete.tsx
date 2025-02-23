@@ -36,7 +36,10 @@ const DeleteForm = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Batal</AlertDialogCancel>
-          <AlertDialogAction color="red" onClick={onConfirm}>
+          <AlertDialogAction
+            className="bg-red-500 text-white"
+            onClick={onConfirm}
+          >
             Hapus
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRefetch } from "@/context/refetch";
+import { Plus } from "lucide-react";
 
 export function AddForm() {
   const { handleRefetch } = useRefetch();
@@ -95,7 +96,10 @@ export function AddForm() {
   return (
     <Sheet open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
       <SheetTrigger asChild>
-        <Button onClick={() => setIsOpen(true)}>Tambah Barang</Button>
+        <Button variant={"info"} onClick={() => setIsOpen(true)}>
+          <Plus className="w-4 h-4" />
+          Tambah Barang
+        </Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>

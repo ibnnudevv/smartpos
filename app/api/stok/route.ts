@@ -20,6 +20,11 @@ export async function GET(req: NextRequest) {
         barang: true,
         cabang: true,
       },
+      orderBy: {
+        cabang: {
+          nama: "desc",
+        },
+      },
     });
 
     return NextResponse.json({
@@ -34,6 +39,11 @@ export async function GET(req: NextRequest) {
     include: {
       barang: true,
       cabang: true,
+    },
+    orderBy: {
+      cabang: {
+        nama: "desc",
+      },
     },
   });
 

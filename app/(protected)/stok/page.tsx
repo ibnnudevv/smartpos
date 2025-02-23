@@ -11,7 +11,7 @@ const Page = () => {
   const { refetchMap } = useRefetch();
   const [res, setRes] = useState([]);
   useEffect(() => {
-    axios.get("/api/stok").then((response) => {
+    axios.get("/api/stok?isActive=true").then((response) => {
       setRes(response.data.data);
     });
   }, [refetchMap["fetch-stok"]]);

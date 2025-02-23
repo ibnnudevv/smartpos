@@ -82,8 +82,8 @@ export function AddForm() {
   return (
     <Sheet open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
       <SheetTrigger asChild>
-        <Button variant="default" onClick={() => setIsOpen(!isOpen)}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button variant="info" onClick={() => setIsOpen(!isOpen)}>
+          <Plus className="h-4 w-4" />
           Tambah Kategori Barang
         </Button>
       </SheetTrigger>

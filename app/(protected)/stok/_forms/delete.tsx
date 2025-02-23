@@ -38,7 +38,7 @@ const DeleteForm = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Batal</AlertDialogCancel>
-          <AlertDialogAction color="red" onClick={onConfirm}>
+          <AlertDialogAction onClick={onConfirm}>
             {buttonLabel}
           </AlertDialogAction>
         </AlertDialogFooter>

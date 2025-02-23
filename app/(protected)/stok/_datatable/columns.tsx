@@ -20,7 +20,7 @@ export const columns: ColumnDef<
     header: "Cabang",
     cell: ({ row }) => {
       const cabang = row.original.cabang;
-      return <Badge variant={"default"}>{cabang.nama}</Badge>;
+      return <Badge variant={"outline-success"}>{cabang.nama}</Badge>;
     },
   },
   {
@@ -30,14 +30,24 @@ export const columns: ColumnDef<
   },
   {
     accessorKey: "jumlah",
-    header: "Jumlah Stok",
+    header: "Stok",
+    cell: ({ row }) => {
+      return <div className="font-medium">{row.original.jumlah}</div>;
+    },
   },
   {
     accessorKey: "createdAt",
     header: "Tanggal",
     cell: ({ row }) => {
-      const date = new Date(row.original.createdAt);
-      return date.toLocaleDateString();
+      const date = new Date(row.original.createdAt).toLocaleDateString(
+        "id-ID",
+        {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }
+      );
+      return date;
     },
   },
 ];

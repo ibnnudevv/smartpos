@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     if (isActive) {
       cabang = await prisma.cabang.findMany({
         where: {
-          isActive: Boolean(isActive),
+          isActive: true,
         },
         orderBy: {
           isActive: "desc",

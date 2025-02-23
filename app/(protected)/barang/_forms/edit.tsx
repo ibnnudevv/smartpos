@@ -60,7 +60,6 @@ export function EditForm({ barang }: EditFormProps) {
   const form = useForm({
     resolver: yupResolver(barangSchema),
     defaultValues: {
-      kode: barang.kode,
       nama: barang.nama,
       kategoriBarangId: barang.kategoriBarangId,
       harga: barang.harga,
@@ -68,10 +67,19 @@ export function EditForm({ barang }: EditFormProps) {
     },
   });
 
+  const generateCode = (nama: string) => {
+    const timestamp = Date.now();
+    const code = `${nama.substring(0, 2).toUpperCase()}${timestamp}`;
+    return code;
+  };
+
   const onSubmit = async (data: any) => {
     try {
+      const kode = generateCode(data.nama);
+
       const response = await axios.put(`/api/barang`, {
         ...data,
+        kode,
         id: barang.id,
       });
       if (response.status === 200) {
@@ -111,23 +119,6 @@ export function EditForm({ barang }: EditFormProps) {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4 py-4 h-[calc(100%-4rem)] overflow-y-auto"
           >
-            <FormField
-              control={form.control}
-              name="kode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Kode Barang</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Masukkan kode barang"
-                      type="text"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="nama"
