@@ -130,7 +130,7 @@ export const columns: ColumnDef<{
   },
   {
     accessorKey: "action",
-    header: "Aksi",
+    header: "",
     cell: ({ row }) => {
       const { handleRefetch } = useRefetch();
       const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -164,14 +164,14 @@ export const columns: ColumnDef<{
       };
 
       return (
-        <div className="flex items-center justify-end space-x-2">
+        <div className="flex items-center justify-center space-x-2">
           {row.original.tutupShift === null && (
             <Button variant={"destructive"} onClick={handleCloseShift}>
               Tutup Shift
             </Button>
           )}
-          <Button size={"icon"} variant={"outline"} onClick={handleOpenDialog}>
-            <Eye />
+          <Button variant={"outline"} onClick={handleOpenDialog}>
+            Detail
           </Button>
           <DetailTransaksiDialog
             isOpen={isDialogOpen}
