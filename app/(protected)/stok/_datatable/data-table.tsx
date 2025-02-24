@@ -104,7 +104,7 @@ export function DataTable<TData, TValue>({
             </SelectContent>
           </Select>
           <Input
-            placeholder="Cari berdasarkan nama..."
+            placeholder="Cari berdasarkan barang..."
             value={
               (table.getColumn("barang")?.getFilterValue() as string) ?? ""
             }

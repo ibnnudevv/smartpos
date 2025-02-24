@@ -29,7 +29,7 @@ export const columns: ColumnDef<
     accessorFn: (row) => row.cabang?.nama,
     cell: ({ row }) => {
       const cabang = row.original.cabang;
-      return <span>{cabang?.nama}</span>;
+      return <Badge variant={"outline-success"}>{cabang?.nama}</Badge>;
     },
   },
   {
@@ -46,7 +46,7 @@ export const columns: ColumnDef<
     cell: ({ row }) => {
       const role = row.original.role;
       return (
-        <Badge className="text-xs rounded-full">
+        <Badge variant={"outline-info"} className="text-xs rounded-full">
           {role.replace("_", " ").toLowerCase()}
         </Badge>
       );

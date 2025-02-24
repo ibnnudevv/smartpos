@@ -18,6 +18,7 @@ model Cabang {
   Stok            Stok[]
   detailTransaksi DetailTransaksi[]
   LogBarang       LogBarang[]
+  KasirShift      KasirShift[]
 }
 
 model User {
@@ -35,6 +36,7 @@ model User {
   createdDetails DetailTransaksi[] @relation("createdBy")
   createdLogs    LogBarang[]       @relation("createdBy")
   isActive       Boolean           @default(true)
+  KasirShift     KasirShift[]
 }
 
 model Barang {
@@ -137,4 +139,45 @@ enum JenisLogBarang {
 enum Role {
   KASIR
   ADMIN_CABANG
+}
+
+model KasirShift {
+  id         String      @id @default(uuid())
+  cabangId   String
+  cabang     Cabang      @relation(fields: [cabangId], references: [id])
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  mulaiShift DateTime    @default(now())
+  tutupShift DateTime?
+  saldoAwal  Int
+  saldoAkhir Int?
+  status     StatusShift @default(AKTIF)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  KasTransaksi KasTransaksi[]
+}
+
+model KasTransaksi {
+  id           String            @id @default(uuid())
+  kasirShiftId String
+  kasirShift   KasirShift        @relation(fields: [kasirShiftId], references: [id])
+  jenis        JenisKasTransaksi
+  jumlah       Int
+  keterangan   String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+enum JenisKasTransaksi {
+  KAS_MASUK
+  KAS_KELUAR
+  PENJUALAN
+  SETORAN
+  PENARIKAN
+}
+
+enum StatusShift {
+  AKTIF
+  TERTUTUP
 }

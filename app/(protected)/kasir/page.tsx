@@ -17,11 +17,11 @@ import { toast } from "sonner";
 import Link from "next/link";
 
 export default function Page() {
+  const [isKasirOpened, setIsKasirOpened] = useState<Boolean>(false);
   const [tx, setTx] = useState("");
   const [selectedItem, setSelectedItem] = useState<ComboboxOptions>();
   const [optionItems, setOptionItems] = useState<ComboboxOptions[]>([]);
   const [tableItems, setTableItems] = useState<any[]>([]);
-
   const [transaction, setTransaction] = useState<any>({
     diskon: 0,
     subTotal: 0,
@@ -29,25 +29,7 @@ export default function Page() {
     total: 0,
   });
 
-  const calculateItemPrice = (basePrice: number, discount: number) => {
-    const discountAmount = basePrice * (discount / 100);
-    return basePrice - discountAmount;
-  };
-
-  const recalculateTransaction = (items: any[]) => {
-    const subTotal = items.reduce((acc, item) => {
-      const itemTotal = item.qty * calculateItemPrice(item.harga, item.diskon);
-      return acc + itemTotal;
-    }, 0);
-
-    const total = subTotal - transaction.diskon + transaction.pajak;
-
-    setTransaction((prev: Transaksi) => ({
-      ...prev,
-      subTotal,
-      total: Math.max(0, total), // Ensure total never goes below 0
-    }));
-  };
+  const fetchCheckKasirOpened = async () => {};
 
   const fetchItems = async () => {
     const response = await fetch("/api/stok?isActive=true", {
@@ -95,6 +77,26 @@ export default function Page() {
         harga: item.harga,
       }))
     );
+  };
+
+  const calculateItemPrice = (basePrice: number, discount: number) => {
+    const discountAmount = basePrice * (discount / 100);
+    return basePrice - discountAmount;
+  };
+
+  const recalculateTransaction = (items: any[]) => {
+    const subTotal = items.reduce((acc, item) => {
+      const itemTotal = item.qty * calculateItemPrice(item.harga, item.diskon);
+      return acc + itemTotal;
+    }, 0);
+
+    const total = subTotal - transaction.diskon + transaction.pajak;
+
+    setTransaction((prev: Transaksi) => ({
+      ...prev,
+      subTotal,
+      total: Math.max(0, total), // Ensure total never goes below 0
+    }));
   };
 
   const handleAddQty = (id: string) => {
@@ -221,33 +223,6 @@ export default function Page() {
     recalculateTransaction(newItems);
   };
 
-  const handleDiskon = (id: string, diskon: string) => {
-    const item = tableItems.find((item) => item.id === id);
-    if (!item) return;
-
-    let discountValue: number;
-    if (diskon.includes("%")) {
-      const percentageDiscount = parseInt(diskon.replace("%", ""));
-      discountValue = (percentageDiscount / 100) * item.harga;
-    } else {
-      discountValue = parseInt(diskon) || 0;
-    }
-
-    const newItems = tableItems.map((item) => {
-      if (item.id === id) {
-        return {
-          ...item,
-          diskon: diskon,
-          total: (item.harga - discountValue) * item.qty,
-        };
-      }
-      return item;
-    });
-
-    setTableItems(newItems);
-    recalculateTransaction(newItems);
-  };
-
   useEffect(() => {
     setTx(generateTx());
     fetchItems();
@@ -261,8 +236,8 @@ export default function Page() {
           <div className="lg:col-span-3">
             <Card>
               <CardHeader className="space-y-4">
-                <Link href={"/barang"}>
-                  <Button variant={"default"} className="w-fit">
+                <Link href={"/barang"} className="w-fit">
+                  <Button variant={"default"}>
                     <CirclePlus fill="#000" className="w-6 h-6 text-white" />
                     <span>TAMBAH ITEM (F1)</span>
                   </Button>

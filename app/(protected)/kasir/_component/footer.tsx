@@ -28,14 +28,14 @@ const FooterComponent: React.FC<FooterComponentProps> = ({
 
   return (
     <div className="flex justify-end gap-8 mt-4">
-      <div>
+      {/* <div>
         <div className="text-sm text-muted-foreground">DISKON (F6)</div>
         <Input
           value={discount}
           className="w-24"
           onChange={handleDiscountChange}
         />
-      </div>
+      </div> */}
       <div>
         <div className="text-sm text-muted-foreground">SUBTOTAL:</div>
         <div className="font-bold">{formatCurrency(subTotal)}</div>
