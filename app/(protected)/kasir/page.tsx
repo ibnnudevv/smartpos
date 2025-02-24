@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 
 export default function Page() {
-  const [isKasirOpened, setIsKasirOpened] = useState<Boolean>(false);
+  const [isKasirOpened, setIsKasirOpened] = useState<boolean>(false);
   const [tx, setTx] = useState("");
   const [selectedItem, setSelectedItem] = useState<ComboboxOptions>();
   const [optionItems, setOptionItems] = useState<ComboboxOptions[]>([]);
@@ -226,6 +226,7 @@ export default function Page() {
   useEffect(() => {
     setTx(generateTx());
     fetchItems();
+    fetchCheckKasirOpened();
   }, []);
 
   return (
