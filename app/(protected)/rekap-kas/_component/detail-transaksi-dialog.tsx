@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -44,6 +45,40 @@ const DetailTransaksiDialog = ({
             <DialogDescription>
               Daftar transaksi kas untuk shift ini.
             </DialogDescription>
+
+            <div className="flex justify-start items-center mt-4 space-x-5">
+              {/* total kas masuk */}
+              <div>
+                <Badge variant={"success"} className="mr-2">
+                  Kas Masuk
+                </Badge>
+                {transaksi
+                  .filter((t) => t.jenis === "KAS_MASUK")
+                  .reduce((acc, t) => acc + t.jumlah, 0)
+                  .toLocaleString("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                    minimumFractionDigits: 0,
+                  })}
+              </div>
+
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* total kas keluar */}
+              <div>
+                <Badge variant={"destructive"} className="mr-2">
+                  Kas Keluar
+                </Badge>
+                {transaksi
+                  .filter((t) => t.jenis === "KAS_KELUAR")
+                  .reduce((acc, t) => acc + t.jumlah, 0)
+                  .toLocaleString("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                    minimumFractionDigits: 0,
+                  })}
+              </div>
+            </div>
           </DialogHeader>
           <Table className="mt-4">
             <TableHeader>

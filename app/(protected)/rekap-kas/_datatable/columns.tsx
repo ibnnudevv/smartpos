@@ -7,11 +7,14 @@ import { Eye } from "lucide-react";
 import DetailTransaksiDialog from "../_component/detail-transaksi-dialog";
 import { Button } from "@/components/ui/button";
 import { JenisKasTransaksi } from "@prisma/client";
+import { toast } from "sonner";
+import { useRefetch } from "@/context/refetch";
+import axios from "axios";
 
 export const columns: ColumnDef<{
   id: string;
-  cabang: { nama: string };
-  user: { nama: string };
+  cabang: { id: string; nama: string };
+  user: { id: string; nama: string };
   mulaiShift: string;
   tutupShift: string | null;
   saldoAwal: number;
@@ -129,6 +132,7 @@ export const columns: ColumnDef<{
     accessorKey: "action",
     header: "Aksi",
     cell: ({ row }) => {
+      const { handleRefetch } = useRefetch();
       const [isDialogOpen, setIsDialogOpen] = useState(false);
 
       const handleOpenDialog = () => {
@@ -139,8 +143,33 @@ export const columns: ColumnDef<{
         setIsDialogOpen(false);
       };
 
+      const handleCloseShift = async () => {
+        const confirm = window.confirm(
+          "Apakah anda yakin ingin menutup shift ini?"
+        );
+        if (!confirm) return;
+        try {
+          await axios.post("/api/rekap-kas", {
+            cabangId: row.original.cabang.id,
+            userId: row.original.user.id,
+            id: row.original.id,
+          });
+          handleRefetch("fetch-rekap-kas");
+          toast.success("Shift berhasil ditutup");
+        } catch (error) {
+          toast.error(
+            error instanceof Error ? error.message : "Internal Server Error"
+          );
+        }
+      };
+
       return (
-        <>
+        <div className="flex items-center justify-end space-x-2">
+          {row.original.tutupShift === null && (
+            <Button variant={"destructive"} onClick={handleCloseShift}>
+              Tutup Shift
+            </Button>
+          )}
           <Button size={"icon"} variant={"outline"} onClick={handleOpenDialog}>
             <Eye />
           </Button>
@@ -149,7 +178,7 @@ export const columns: ColumnDef<{
             onClose={handleCloseDialog}
             transaksi={row.original.KasTransaksi}
           />
-        </>
+        </div>
       );
     },
   },

@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -58,6 +59,83 @@ export async function GET(req: NextRequest) {
         statusCode: 200,
         message: "Transaksi kas berhasil ditemukan",
         data: kasTransaksi,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        statusCode: 500,
+        message:
+          error instanceof Error
+            ? (error as Error).message
+            : "Internal Server Error",
+        data: null,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// tutup kas
+export async function POST(req: NextRequest) {
+  await auth.protect();
+  try {
+    const body = await req.json();
+
+    const kasirShift = await prisma.kasirShift.findFirst({
+      where: {
+        cabangId: body.cabangId,
+        userId: body.userId,
+        id: body.id,
+        tutupShift: null,
+      },
+    });
+
+    if (!kasirShift) {
+      return NextResponse.json(
+        {
+          success: false,
+          statusCode: 404,
+          message: "Kasir shift tidak ditemukan",
+          data: null,
+        },
+        { status: 404 }
+      );
+    }
+
+    const kasTransaksi = await prisma.kasTransaksi.findMany({
+      where: {
+        kasirShiftId: kasirShift.id,
+        jenis: { in: ["KAS_MASUK", "KAS_KELUAR"] },
+      },
+    });
+
+    const totalKasMasuk = kasTransaksi
+      .filter((transaksi) => transaksi.jenis === "KAS_MASUK")
+      .reduce((acc, curr) => acc + curr.jumlah, 0);
+
+    const totalKasKeluar = kasTransaksi
+      .filter((transaksi) => transaksi.jenis === "KAS_KELUAR")
+      .reduce((acc, curr) => acc + curr.jumlah, 0);
+
+    const totalKas = totalKasMasuk - totalKasKeluar;
+
+    await prisma.kasirShift.update({
+      where: { id: kasirShift.id },
+      data: {
+        tutupShift: new Date(),
+        saldoAkhir: totalKas,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        statusCode: 200,
+        message: "Kasir shift berhasil ditutup",
+        data: kasirShift,
       },
       { status: 200 }
     );
