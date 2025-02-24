@@ -19,6 +19,7 @@ model Cabang {
   detailTransaksi DetailTransaksi[]
   LogBarang       LogBarang[]
   KasirShift      KasirShift[]
+  DraftTransaksi  DraftTransaksi[]
 }
 
 model User {
@@ -37,6 +38,7 @@ model User {
   createdLogs    LogBarang[]       @relation("createdBy")
   isActive       Boolean           @default(true)
   KasirShift     KasirShift[]
+  DraftTransaksi DraftTransaksi[]
 }
 
 model Barang {
@@ -49,11 +51,12 @@ model Barang {
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
 
-  Stok             Stok[]
-  DetailTransaksi  DetailTransaksi[]
-  LogBarang        LogBarang[]
-  KategoriBarang   KategoriBarang    @relation(fields: [kategoriBarangId], references: [id])
-  kategoriBarangId String
+  Stok                 Stok[]
+  DetailTransaksi      DetailTransaksi[]
+  LogBarang            LogBarang[]
+  KategoriBarang       KategoriBarang         @relation(fields: [kategoriBarangId], references: [id])
+  kategoriBarangId     String
+  DetailDraftTransaksi DetailDraftTransaksi[]
 }
 
 model KategoriBarang {
@@ -180,4 +183,31 @@ enum JenisKasTransaksi {
 enum StatusShift {
   AKTIF
   TERTUTUP
+}
+
+model DraftTransaksi {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  cabangId  String
+  cabang    Cabang   @relation(fields: [cabangId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  DetailDraftTransaksi DetailDraftTransaksi[]
+}
+
+model DetailDraftTransaksi {
+  id               String         @id @default(uuid())
+  draftTransaksi   DraftTransaksi @relation(fields: [draftTransaksiId], references: [id])
+  draftTransaksiId String
+  barangId         String
+  barang           Barang         @relation(fields: [barangId], references: [id])
+  jumlah           Int
+  harga            Int
+  diskon           Int?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  isActive         Boolean        @default(true)
 }
