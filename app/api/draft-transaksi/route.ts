@@ -25,6 +25,8 @@ export async function POST(req: Request) {
 
     const draftTransaksi = await prisma.draftTransaksi.create({
       data: {
+        judul: body.judul,
+        deskripsi: body.deskripsi ?? "",
         userId: user.id,
         cabangId: body.cabangId,
         DetailDraftTransaksi: {

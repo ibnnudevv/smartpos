@@ -3,7 +3,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-import { Eye } from "lucide-react";
 import DetailTransaksiDialog from "../_component/detail-transaksi-dialog";
 import { Button } from "@/components/ui/button";
 import { JenisKasTransaksi } from "@prisma/client";

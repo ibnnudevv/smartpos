@@ -1,11 +1,18 @@
 import { Button } from "@/components/ui/button";
+import axios from "axios";
 import { FileText, Hash, HelpCircle, Save, X } from "lucide-react";
 import React from "react";
+import { DraftModal } from "../_action_form/draft-modal";
 
 const ButtonWidgetComponent = ({
+  information,
   items,
   setItems,
 }: {
+  information: {
+    userId: string;
+    cabangId: string;
+  };
   items: any[];
   setItems: any;
 }) => {
@@ -27,9 +34,7 @@ const ButtonWidgetComponent = ({
       <Button variant="outline" size="sm" onClick={handleResetItems}>
         <X className="w-4 h-4 mr-2" /> EMPTY (CTRL+SHIFT+F11)
       </Button>
-      <Button variant="outline" size="sm">
-        <Save className="w-4 h-4 mr-2" /> DRAFT (F7)
-      </Button>
+      <DraftModal information={information} items={items} />
       <Button variant="outline" size="sm">
         <FileText className="w-4 h-4 mr-2" /> BUKA DRAFT (CTRL+F7)
       </Button>

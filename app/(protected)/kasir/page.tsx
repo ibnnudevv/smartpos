@@ -28,6 +28,10 @@ export default function Page() {
     pajak: 0,
     total: 0,
   });
+  const [information, setInformation] = useState<any>({
+    userId: "",
+    cabangId: "",
+  });
 
   const fetchCheckKasirOpened = async () => {};
 
@@ -263,6 +267,7 @@ export default function Page() {
 
               <CardContent>
                 <ButtonWidgetComponent
+                  information={information}
                   items={tableItems}
                   setItems={setTableItems}
                 />

@@ -188,6 +188,8 @@ enum StatusShift {
 model DraftTransaksi {
   id        String   @id @default(uuid())
   userId    String
+  judul     String
+  deskripsi String?
   user      User     @relation(fields: [userId], references: [id])
   cabangId  String
   cabang    Cabang   @relation(fields: [cabangId], references: [id])

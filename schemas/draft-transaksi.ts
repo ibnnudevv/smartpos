@@ -1,11 +1,13 @@
 import * as Yup from "yup";
 
 const DraftTransaksiSchema = Yup.object().shape({
-  userId: Yup.string().uuid().required("ID Pengguna harus diisi"),
-  cabangId: Yup.string().uuid().required("ID Cabang harus diisi"),
+  judul: Yup.string().required("Judul harus diisi"),
+  deskripsi: Yup.string().nullable(),
+  userId: Yup.string().required("ID Pengguna harus diisi"),
+  cabangId: Yup.string().required("ID Cabang harus diisi"),
   DetailDraftTransaksi: Yup.array().of(
     Yup.object().shape({
-      barangId: Yup.string().uuid().required("ID Barang harus diisi"),
+      barangId: Yup.string().required("ID Barang harus diisi"),
       jumlah: Yup.number()
         .integer()
         .min(1, "Jumlah harus lebih dari 0")
@@ -24,9 +26,8 @@ const DraftTransaksiSchema = Yup.object().shape({
 
 const DetailDraftTransaksiSchema = Yup.object().shape({
   draftTransaksiId: Yup.string()
-    .uuid()
-    .required("ID Draft Transaksi harus diisi"),
-  barangId: Yup.string().uuid().required("ID Barang harus diisi"),
+  .required("ID Draft Transaksi harus diisi"),
+  barangId: Yup.string().required("ID Barang harus diisi"),
   jumlah: Yup.number()
     .integer()
     .min(1, "Jumlah harus lebih dari 0")
