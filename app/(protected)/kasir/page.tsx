@@ -15,8 +15,14 @@ import HeaderComponent from "./_component/header";
 import { Barang, Cabang, Stok, Transaksi } from "@prisma/client";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
+import { useRefetch } from "@/context/refetch";
 
 export default function Page() {
+  const { user } = useUser();
+  const userId = user?.id ?? "";
+  const { refetchMap } = useRefetch();
+
   const [isKasirOpened, setIsKasirOpened] = useState<boolean>(false);
   const [tx, setTx] = useState("");
   const [selectedItem, setSelectedItem] = useState<ComboboxOptions>();
@@ -227,11 +233,21 @@ export default function Page() {
     recalculateTransaction(newItems);
   };
 
+  const handleResetItems = () => {
+    setTableItems([]);
+    recalculateTransaction([]);
+  };
+
   useEffect(() => {
     setTx(generateTx());
     fetchItems();
     fetchCheckKasirOpened();
   }, []);
+
+  useEffect(() => {
+    setTableItems([]);
+    recalculateTransaction([]);
+  }, [refetchMap["reload-page-after-store-draft"]]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -267,9 +283,11 @@ export default function Page() {
 
               <CardContent>
                 <ButtonWidgetComponent
+                  userId={userId}
                   information={information}
                   items={tableItems}
                   setItems={setTableItems}
+                  handleResetItems={handleResetItems}
                 />
                 <TableItemComponent
                   items={tableItems}

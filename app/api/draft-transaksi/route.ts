@@ -10,13 +10,12 @@ import {
 // CREATE
 export async function POST(req: Request) {
   await auth.protect();
-  const user = await currentUser();
 
   try {
     const body = await req.json();
     await DraftTransaksiSchema.validate(body, { abortEarly: false });
 
-    if (!user?.id) {
+    if (!body?.userId) {
       return NextResponse.json(
         { success: false, statusCode: 400, message: "User ID is required" },
         { status: 400 }
@@ -27,7 +26,7 @@ export async function POST(req: Request) {
       data: {
         judul: body.judul,
         deskripsi: body.deskripsi ?? "",
-        userId: user.id,
+        userId: body.userId,
         cabangId: body.cabangId,
         DetailDraftTransaksi: {
           create: body.DetailDraftTransaksi,
@@ -54,6 +53,9 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    console.log((error as Error).message);
+
     return NextResponse.json(
       {
         success: false,
@@ -217,6 +219,50 @@ export async function DELETE_draft(req: NextRequest) {
         success: true,
         statusCode: 200,
         message: "Draft transaksi berhasil dibatalkan",
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        statusCode: 500,
+        message: "Terjadi kesalahan pada server",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: NextRequest) {
+  await auth.protect();
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    const draftTransaksi = await prisma.draftTransaksi.findUnique({
+      where: { id: String(id) },
+      include: { DetailDraftTransaksi: true },
+    });
+
+    if (!draftTransaksi) {
+      return NextResponse.json(
+        {
+          success: false,
+          statusCode: 404,
+          message: "Draft transaksi tidak ditemukan",
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        statusCode: 200,
+        message: "Draft transaksi berhasil ditemukan",
+        data: draftTransaksi,
       },
       { status: 200 }
     );

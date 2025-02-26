@@ -1,0 +1,334 @@
+"use client";
+
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import axios from "axios";
+import { Cabang, StatusShift } from "@prisma/client";
+import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
+
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  tableState: {
+    startDate: string;
+    setStartDate: (value: string) => void;
+    endDate: string;
+    setEndDate: (value: string) => void;
+    cabangId: string;
+    setCabangId: (value: string) => void;
+  };
+}
+
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  tableState,
+}: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [pageSize, setPageSize] = useState(10); // Default 10 data per halaman
+
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: pageSize,
+  });
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+      pagination,
+    },
+    onPaginationChange: setPagination,
+    manualPagination: false,
+  });
+
+  const [cabang, setCabang] = useState<Cabang[]>([]);
+  useEffect(() => {
+    axios.get("/api/cabang?isActive=true").then((response) => {
+      setCabang(response.data.data);
+    });
+  }, []);
+
+  return (
+    <>
+      <div className="flex items-center py-4 space-x-4 justify-between">
+        <div className="flex items-center gap-2">
+          <Select
+            onValueChange={(value) => {
+              table
+                .getColumn("cabang.nama")
+                ?.setFilterValue(value === "all" ? undefined : value);
+            }}
+          >
+            <SelectTrigger className="w-fit">
+              <SelectValue placeholder="Semua Cabang" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={"all"}>Semua Cabang</SelectItem>
+              {cabang.map((cabang) => (
+                <SelectItem key={cabang.id} value={cabang.nama.toString()}>
+                  {cabang.nama}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            onValueChange={(value) => {
+              table
+                .getColumn("status")
+                ?.setFilterValue(value === "all" ? undefined : value);
+            }}
+          >
+            <SelectTrigger className="w-fit">
+              <SelectValue placeholder="Semua Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={"all"}>Semua Status</SelectItem>
+              {Object.values(StatusShift).map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Input
+            placeholder="Cari berdasarkan nama..."
+            value={
+              (table.getColumn("user.nama")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("user.nama")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
+        <DatePickerWithRange
+          startDate={tableState.startDate}
+          endDate={tableState.endDate}
+          setStartDate={tableState.setStartDate}
+          setEndDate={tableState.setEndDate}
+        />
+      </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  className={row.index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  Belum ada data.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="flex items-center justify-between space-x-4 py-4">
+        <Select
+          value={String(pageSize)}
+          onValueChange={(value) => {
+            const newSize = Number(value);
+            setPageSize(newSize);
+            setPagination((prev) => ({ ...prev, pageSize: newSize }));
+            table.setPageSize(newSize);
+          }}
+        >
+          <SelectTrigger className="w-fit">
+            <SelectValue placeholder={pageSize} />
+          </SelectTrigger>
+          <SelectContent>
+            {[5, 10, 25, 50, 100].map((size) => (
+              <SelectItem key={size} value={size.toString()}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <div className="flex items-center space-x-2">
+          {/* Tombol Previous */}
+          <Button
+            variant="outline"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            size={"icon"}
+          >
+            <ChevronLeft />
+          </Button>
+
+          {/* Paginasi Dinamis (Digabung) */}
+          {(() => {
+            const pageCount = table.getPageCount();
+            const visiblePages = 3;
+            const pageIndex = table.getState().pagination.pageIndex;
+
+            if (pageCount <= visiblePages) {
+              return Array.from({ length: pageCount }).map((_, index) => (
+                <Button
+                  key={index}
+                  variant={pageIndex === index ? "default" : "outline"}
+                  size={"icon"}
+                  onClick={() => table.setPageIndex(index)}
+                >
+                  {index + 1}
+                </Button>
+              ));
+            }
+
+            const pages = [];
+            const startPage = Math.max(
+              0,
+              pageIndex - Math.floor(visiblePages / 2)
+            );
+            const endPage = Math.min(
+              pageCount - 1,
+              startPage + visiblePages - 1
+            );
+
+            if (startPage > 0) {
+              pages.push(
+                <Button
+                  key={0}
+                  variant={pageIndex === 0 ? "default" : "outline"}
+                  size={"icon"}
+                  onClick={() => table.setPageIndex(0)}
+                >
+                  1
+                </Button>
+              );
+              if (startPage > 1) {
+                pages.push(
+                  <span key="start-dots" className="mx-1">
+                    ...
+                  </span>
+                );
+              }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+              pages.push(
+                <Button
+                  key={i}
+                  variant={pageIndex === i ? "default" : "outline"}
+                  size={"icon"}
+                  onClick={() => table.setPageIndex(i)}
+                >
+                  {i + 1}
+                </Button>
+              );
+            }
+
+            if (endPage < pageCount - 1) {
+              if (endPage < pageCount - 2) {
+                pages.push(
+                  <span key="end-dots" className="mx-1">
+                    ...
+                  </span>
+                );
+              }
+              pages.push(
+                <Button
+                  key={pageCount - 1}
+                  variant={pageIndex === pageCount - 1 ? "default" : "outline"}
+                  size={"icon"}
+                  onClick={() => table.setPageIndex(pageCount - 1)}
+                >
+                  {pageCount}
+                </Button>
+              );
+            }
+
+            return pages;
+          })()}
+
+          {/* Tombol Next */}
+          <Button
+            variant="outline"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            size={"icon"}
+          >
+            <ChevronRight />
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+}

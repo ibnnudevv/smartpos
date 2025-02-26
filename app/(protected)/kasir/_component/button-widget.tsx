@@ -5,21 +5,21 @@ import React from "react";
 import { DraftModal } from "../_action_form/draft-modal";
 
 const ButtonWidgetComponent = ({
+  userId,
   information,
   items,
   setItems,
+  handleResetItems,
 }: {
+  userId: string;
   information: {
     userId: string;
     cabangId: string;
   };
   items: any[];
   setItems: any;
+  handleResetItems: () => void;
 }) => {
-  const handleResetItems = () => {
-    confirm("Apakah anda yakin ingin mengosongkan item?") && setItems([]);
-  };
-
   return (
     <div className="flex flex-wrap gap-2 mb-4">
       {/* <Button variant="outline" size="sm">
@@ -34,7 +34,7 @@ const ButtonWidgetComponent = ({
       <Button variant="outline" size="sm" onClick={handleResetItems}>
         <X className="w-4 h-4 mr-2" /> EMPTY (CTRL+SHIFT+F11)
       </Button>
-      <DraftModal information={information} items={items} />
+      <DraftModal userId={userId} information={information} items={items} />
       <Button variant="outline" size="sm">
         <FileText className="w-4 h-4 mr-2" /> BUKA DRAFT (CTRL+F7)
       </Button>
