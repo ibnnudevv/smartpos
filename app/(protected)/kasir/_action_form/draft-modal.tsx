@@ -104,14 +104,14 @@ export const DraftModal = ({
   });
 
   const fetchCabang = async () => {
-    const response = await axios.get(`/api/cabang?isActive=true`);
+    const response = await axios.get(`/api/cabang?hasMember=true`);
     const data = response.data.data;
     if (!data) return;
     setBranches(data);
   };
 
-  const fetchUsers = async () => {
-    const response = await axios.get(`/api/user`);
+  const fetchUsers = async (cabangId: string) => {
+    const response = await axios.get(`/api/user?cabangId=${cabangId}`);
     const data = response.data.data;
     if (!data) return;
     setUsers(data);
@@ -119,8 +119,13 @@ export const DraftModal = ({
 
   useEffect(() => {
     fetchCabang();
-    fetchUsers();
   }, []);
+
+  useEffect(() => {
+    if (form.watch("cabangId")) {
+      fetchUsers(form.watch("cabangId"));
+    }
+  }, [form.watch("cabangId")]);
 
   const onSubmit = async (data: any) => {
     try {
@@ -167,7 +172,7 @@ export const DraftModal = ({
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
-        <ScrollArea className="h-[500px]">
+        <ScrollArea className="h-[500px]" scrollHideDelay={0}>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}

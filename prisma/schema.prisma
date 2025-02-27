@@ -82,18 +82,25 @@ model Stok {
 }
 
 model Transaksi {
-  id        String   @id @default(uuid())
-  kode      String   @unique // ex: TRX-001
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  subTotal  Int?
-  diskon    Int?
-  total     Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true)
+  id               String           @id @default(uuid())
+  kode             String           @unique // ex: TRX-001
+  user             User             @relation(fields: [userId], references: [id])
+  userId           String
+  subTotal         Int?
+  diskon           Int?
+  total            Int?
+  metodePembayaran MetodePembayaran
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  isActive         Boolean          @default(true)
 
   DetailTransaksi DetailTransaksi[]
+}
+
+enum MetodePembayaran {
+  TUNAI
+  DEBIT
+  KREDIT
 }
 
 model DetailTransaksi {

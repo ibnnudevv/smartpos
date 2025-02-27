@@ -6,6 +6,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const isActive = searchParams.get("isActive");
+    const hasMember = searchParams.get("hasMember");
 
     let cabang;
 
@@ -13,6 +14,19 @@ export async function GET(req: NextRequest) {
       cabang = await prisma.cabang.findMany({
         where: {
           isActive: true,
+        },
+        orderBy: {
+          isActive: "desc",
+        },
+      });
+    } else if (hasMember) {
+      cabang = await prisma.cabang.findMany({
+        where: {
+          User: {
+            some: {
+              isActive: true,
+            },
+          },
         },
         orderBy: {
           isActive: "desc",

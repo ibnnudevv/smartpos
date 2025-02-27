@@ -70,11 +70,15 @@ export const columns: ColumnDef<{
     accessorKey: "createdAt",
     header: "Tanggal",
     cell: ({ row }) => {
-      return new Date(row.original.createdAt).toLocaleDateString("id-ID", {
-        year: "numeric",
-        month: "2-digit",
-        day: "numeric",
-      });
+      return (
+        new Date(row.original.createdAt).toLocaleDateString("id-ID", {
+          year: "numeric",
+          month: "2-digit",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }) + " WIB"
+      );
     },
   },
   {
@@ -90,26 +94,6 @@ export const columns: ColumnDef<{
 
       const handleCloseDialog = () => {
         setIsDialogOpen(false);
-      };
-
-      const handleCloseShift = async () => {
-        const confirm = window.confirm(
-          "Apakah anda yakin ingin menutup shift ini?"
-        );
-        if (!confirm) return;
-        try {
-          await axios.post("/api/rekap-kas", {
-            cabangId: row.original.cabang.id,
-            userId: row.original.user.id,
-            id: row.original.id,
-          });
-          handleRefetch("fetch-rekap-kas");
-          toast.success("Shift berhasil ditutup");
-        } catch (error) {
-          toast.error(
-            error instanceof Error ? error.message : "Internal Server Error"
-          );
-        }
       };
 
       return (

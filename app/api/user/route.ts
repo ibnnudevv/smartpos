@@ -127,8 +127,25 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   await auth.protect();
+
+  const { searchParams } = new URL(req.url);
+  const cabangId = searchParams.get("cabangId");
+
+  if (cabangId) {
+    const users = await prisma.user.findMany({
+      include: {
+        cabang: true,
+      },
+      where: {
+        cabangId: cabangId,
+        isActive: true,
+      },
+    });
+
+    return NextResponse.json({ success: true, data: users });
+  }
 
   const users = await prisma.user.findMany({
     include: {
