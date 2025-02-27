@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Barang, DetailDraftTransaksi } from "@prisma/client";
+import { Barang } from "@prisma/client";
 import { toast } from "sonner";
 import { useRefetch } from "@/context/refetch";
 import axios from "axios";
