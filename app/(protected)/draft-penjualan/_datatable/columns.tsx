@@ -3,32 +3,36 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-import DetailTransaksiDialog from "../_component/detail-transaksi-dialog";
 import { Button } from "@/components/ui/button";
-import { JenisKasTransaksi } from "@prisma/client";
+import { Barang, DetailDraftTransaksi } from "@prisma/client";
 import { toast } from "sonner";
 import { useRefetch } from "@/context/refetch";
 import axios from "axios";
+import DetailTransaksiDialog from "../_component/detail-transaksi-dialog";
 
 export const columns: ColumnDef<{
   id: string;
   cabang: { id: string; nama: string };
   user: { id: string; nama: string };
-  mulaiShift: string;
-  tutupShift: string | null;
-  saldoAwal: number;
-  saldoAkhir: number | null;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-  KasTransaksi: {
+  judul: string;
+  deskripsi: string;
+  createdAt: Date;
+  DetailDraftTransaksi: {
     id: string;
-    kasirShiftId: string;
-    jenis: JenisKasTransaksi;
+    draftTransaksiId: string;
+    barangId: string;
     jumlah: number;
-    keterangan: string;
-    createdAt: string;
-    updatedAt: string;
+    harga: number;
+    diskon: number | null;
+    createdAt: Date;
+    updatedAt: Date;
+    isActive: boolean;
+  } & {
+    id: string;
+    jumlah: number;
+    harga: number;
+    diskon: number;
+    barang: Barang;
   }[];
 }>[] = [
   {
@@ -49,82 +53,28 @@ export const columns: ColumnDef<{
     header: "Kasir",
   },
   {
-    accessorKey: "mulaiShift",
-    header: "Mulai Shift",
+    id: "judul",
+    accessorKey: "judul",
+    header: "Judul",
+  },
+  {
+    id: "deskripsi",
+    accessorKey: "deskripsi",
+    header: "Deskripsi",
     cell: ({ row }) => {
-      // date format: dd/mm/yyyy hh:mm
-      const date = new Date(row.original.mulaiShift).toLocaleString("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
+      return row.original.deskripsi || "-";
+    },
+  },
+  {
+    id: "createdAt",
+    accessorKey: "createdAt",
+    header: "Tanggal",
+    cell: ({ row }) => {
+      return new Date(row.original.createdAt).toLocaleDateString("id-ID", {
         year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      return date === "Invalid Date" ? row.original.mulaiShift : date + " WIB";
-    },
-  },
-  {
-    accessorKey: "tutupShift",
-    header: "Tutup Shift",
-    cell: ({ row }) => {
-      if (row.original.tutupShift === null) {
-        return "-";
-      }
-      // date format: dd/mm/yyyy hh:mm
-      const date = new Date(row.original.tutupShift).toLocaleString("id-ID", {
-        day: "2-digit",
         month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+        day: "numeric",
       });
-      return date === "Invalid Date" ? row.original.tutupShift : date + " WIB";
-    },
-  },
-  {
-    accessorKey: "saldoAwal",
-    header: "Saldo Awal",
-    cell: ({ row }) => {
-      return row.original.saldoAwal.toLocaleString("id-ID", {
-        style: "currency",
-        currency: "IDR",
-        minimumFractionDigits: 0,
-      });
-    },
-  },
-  {
-    accessorKey: "saldoAkhir",
-    header: "Saldo Akhir",
-    cell: ({ row }) => {
-      if (row.original.saldoAkhir === null) {
-        return "-";
-      }
-      return row.original.saldoAkhir.toLocaleString("id-ID", {
-        style: "currency",
-        currency: "IDR",
-        minimumFractionDigits: 0,
-      });
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      return (
-        <Badge
-          variant={row.original.status === "AKTIF" ? "success" : "error"}
-          className="text-xs rounded-full"
-        >
-          {row.original.status}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "KasTransaksi",
-    header: "Jumlah Transaksi",
-    cell: ({ row }) => {
-      return row.original.KasTransaksi.length;
     },
   },
   {
@@ -164,18 +114,13 @@ export const columns: ColumnDef<{
 
       return (
         <div className="flex items-center justify-center space-x-2">
-          {row.original.tutupShift === null && (
-            <Button variant={"destructive"} onClick={handleCloseShift}>
-              Tutup Shift
-            </Button>
-          )}
           <Button variant={"outline"} onClick={handleOpenDialog}>
             Detail
           </Button>
           <DetailTransaksiDialog
             isOpen={isDialogOpen}
             onClose={handleCloseDialog}
-            transaksi={row.original.KasTransaksi}
+            detailDraftTransaksi={row.original.DetailDraftTransaksi}
           />
         </div>
       );

@@ -240,22 +240,52 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
+    const cabangId = searchParams.get("cabangId");
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
 
-    const draftTransaksi = await prisma.draftTransaksi.findUnique({
-      where: { id: String(id) },
-      include: { DetailDraftTransaksi: true },
-    });
+    const whereClause: any = {};
 
-    if (!draftTransaksi) {
-      return NextResponse.json(
-        {
-          success: false,
-          statusCode: 404,
-          message: "Draft transaksi tidak ditemukan",
-        },
-        { status: 404 }
-      );
+    if (cabangId) {
+      whereClause.cabangId = cabangId;
     }
+
+    if (startDate && endDate) {
+      whereClause.createdAt = {
+        gte: new Date(startDate),
+        lte: new Date(endDate),
+      };
+    } else if (startDate) {
+      whereClause.createdAt = {
+        gte: new Date(startDate),
+      };
+    } else if (endDate) {
+      whereClause.createdAt = {
+        lte: new Date(endDate),
+      };
+    }
+
+    const draftTransaksi = await prisma.draftTransaksi.findMany({
+      where: whereClause,
+      include: {
+        DetailDraftTransaksi: {
+          include: {
+            barang: {
+              select: { nama: true },
+            },
+          },
+        },
+        user: {
+          select: { nama: true },
+        },
+        cabang: {
+          select: { nama: true },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
     return NextResponse.json(
       {

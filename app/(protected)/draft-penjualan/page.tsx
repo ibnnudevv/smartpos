@@ -8,12 +8,12 @@ import { columns } from "./_datatable/columns";
 import { useRefetch } from "@/context/refetch";
 
 class RekapKasService {
-  async fetchRekapKas(
+  async fetchDraftSales(
     startDate: string,
     endDate: string,
     cabangId: string
   ): Promise<any[]> {
-    let url = "/api/rekap-kas?";
+    let url = "/api/draft-transaksi?";
     const params = new URLSearchParams();
 
     if (startDate) params.append("startDate", startDate);
@@ -61,7 +61,7 @@ const Page = () => {
   const rekapKasService = new RekapKasService();
 
   const fetchData = async () => {
-    const data = await rekapKasService.fetchRekapKas(
+    const data = await rekapKasService.fetchDraftSales(
       startDate,
       endDate,
       cabangId
@@ -71,7 +71,7 @@ const Page = () => {
 
   useEffect(() => {
     fetchData();
-  }, [refetchMap["fetch-rekap-kas"], startDate, endDate, cabangId]);
+  }, [refetchMap["fetch-draft-penjualan"], startDate, endDate, cabangId]);
 
   return (
     <>

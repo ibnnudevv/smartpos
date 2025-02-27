@@ -1,4 +1,3 @@
-// DetailTransaksiDialog.jsx
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -8,7 +7,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -17,106 +15,71 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { JenisKasTransaksi } from "@prisma/client";
+import { Barang, DetailDraftTransaksi } from "@prisma/client";
 
 const DetailTransaksiDialog = ({
   isOpen,
   onClose,
-  transaksi,
+  detailDraftTransaksi,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  transaksi: {
-    id: string;
-    jenis: JenisKasTransaksi;
-    jumlah: number;
-    keterangan: string;
-    createdAt: string;
-  }[];
+  detailDraftTransaksi: DetailDraftTransaksi &
+    {
+      id: string;
+      jumlah: number;
+      harga: number;
+      diskon: number;
+      barang: Barang;
+    }[];
 }) => {
-  if (!transaksi || transaksi.length === 0) return null;
+  if (!detailDraftTransaksi || detailDraftTransaksi.length === 0) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="lg:max-w-5xl">
-        <ScrollArea className="h-[calc(100vh-100px)]">
+        <ScrollArea className="h-96">
           <DialogHeader>
-            <DialogTitle>Detail Transaksi Kas</DialogTitle>
+            <DialogTitle>Detail Draft Transaksi</DialogTitle>
             <DialogDescription>
-              Daftar transaksi kas untuk shift ini.
+              Daftar transaksi yang terdapat pada draft transaksi ini
             </DialogDescription>
-
-            <div className="flex justify-start items-center mt-4 space-x-5">
-              {/* total kas masuk */}
-              <div>
-                <Badge variant={"success"} className="mr-2">
-                  Kas Masuk
-                </Badge>
-                {transaksi
-                  .filter((t) => t.jenis === "KAS_MASUK")
-                  .reduce((acc, t) => acc + t.jumlah, 0)
-                  .toLocaleString("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    minimumFractionDigits: 0,
-                  })}
-              </div>
-
-              <Separator orientation="vertical" className="h-6" />
-
-              {/* total kas keluar */}
-              <div>
-                <Badge variant={"destructive"} className="mr-2">
-                  Kas Keluar
-                </Badge>
-                {transaksi
-                  .filter((t) => t.jenis === "KAS_KELUAR")
-                  .reduce((acc, t) => acc + t.jumlah, 0)
-                  .toLocaleString("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    minimumFractionDigits: 0,
-                  })}
-              </div>
-            </div>
           </DialogHeader>
           <Table className="mt-4">
             <TableHeader>
-              <TableRow>
+              <TableRow className="font-medium">
                 <TableHead>No</TableHead>
-                <TableHead>Jenis</TableHead>
-                <TableHead>Waktu</TableHead>
-                <TableHead className="text-right">Jumlah</TableHead>
-                <TableHead>Keterangan</TableHead>
+                <TableHead>Barang</TableHead>
+                <TableHead>Jumlah</TableHead>
+                <TableHead className="text-right">Harga</TableHead>
+                <TableHead className="text-right">Diskon</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transaksi.map((t) => (
+              {detailDraftTransaksi.map((item, index) => (
                 <TableRow
-                  key={t.id}
-                  className={
-                    t.jenis === "KAS_KELUAR" ? "bg-red-50" : "bg-green-50"
-                  }
+                  key={item.id}
+                  className={index % 2 === 0 ? "bg-gray-50" : ""}
                 >
-                  <TableCell>{transaksi.indexOf(t) + 1}</TableCell>
-                  <TableCell>
-                    {t.jenis === "KAS_KELUAR" ? (
-                      <Badge variant={"destructive"}>Kas Keluar</Badge>
-                    ) : (
-                      <Badge variant={"success"}>Kas Masuk</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(t.createdAt).toLocaleString("id-ID")}
-                  </TableCell>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{item.barang?.nama}</TableCell>
+                  <TableCell>{item.jumlah}</TableCell>
                   <TableCell className="text-right">
-                    {t.jumlah.toLocaleString("id-ID", {
+                    {item.harga.toLocaleString("id-ID", {
                       style: "currency",
                       currency: "IDR",
                       minimumFractionDigits: 0,
                     })}
                   </TableCell>
-                  <TableCell>{t.keterangan}</TableCell>
+                  <TableCell className="text-right">
+                    {item.diskon
+                      ? item.diskon.toLocaleString("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          minimumFractionDigits: 0,
+                        })
+                      : "-"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
