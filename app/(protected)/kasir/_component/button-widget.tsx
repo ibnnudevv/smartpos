@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import axios from "axios";
-import { FileText, Hash, HelpCircle, Save, X } from "lucide-react";
+import { FileText, X } from "lucide-react";
 import React from "react";
 import { DraftModal } from "../_action_form/draft-modal";
+import { KasirSift } from "../_action_form/kasir-sift-modal";
 
 const ButtonWidgetComponent = ({
   userId,
@@ -25,9 +25,10 @@ const ButtonWidgetComponent = ({
       {/* <Button variant="outline" size="sm">
         <FileText className="w-4 h-4 mr-2" /> BARU (F11)
       </Button> */}
-      <Button variant="outline" size="sm">
+      {/* <Button variant="outline" size="sm">
         <FileText className="w-4 h-4 mr-2" /> BUKA KASIR (CTRL+F11)
-      </Button>
+      </Button> */}
+      <KasirSift userId={userId} />
       {/* <Button variant="outline" size="sm">
         <Hash className="w-4 h-4 mr-2" /> QTY (F4)
       </Button> */}

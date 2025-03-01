@@ -3,6 +3,53 @@ import { KasirShiftSchema } from "@/schemas/kasir-shift";
 import { NextRequest, NextResponse } from "next/server";
 import { ValidationError } from "yup";
 
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const cabangId = searchParams.get("cabangId");
+  const userId = searchParams.get("userId");
+
+  if (!cabangId || !userId) {
+    return NextResponse.json(
+      {
+        success: false,
+        statusCode: 400,
+        message: "CabangId dan userId harus diisi",
+      },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const response = await prisma.kasirShift.findFirst({
+      where: {
+        userId,
+        cabangId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      statusCode: 200,
+      message: "Data kasir shift berhasil ditemukan",
+      data: response,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        statusCode: 500,
+        message:
+          (error as Error).message ||
+          "Terjadi kesalahan saat mengambil data kasir shift",
+      },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const tipe = searchParams.get("tipe");
@@ -22,7 +69,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     await KasirShiftSchema.validate(body, { abortEarly: false });
 
-    const { userId, cabangId, saldoAwal } = body;
+    const { userId, cabangId, saldoAwal, saldoAkhir } = body;
 
     const shiftAktif = await prisma.kasirShift.findFirst({
       where: {
@@ -38,28 +85,18 @@ export async function POST(req: NextRequest) {
           success: false,
           statusCode: 400,
           message: "Kasir masih memiliki shift yang aktif.",
+          data: shiftAktif,
         },
         { status: 400 }
       );
     }
 
-    const shiftTerakhir = await prisma.kasirShift.findFirst({
-      where: {
-        userId,
-        cabangId,
-      },
-      orderBy: {
-        mulaiShift: "desc",
-      },
-    });
-
-    const saldoAwalBaru = shiftTerakhir ? shiftTerakhir.saldoAkhir : saldoAwal;
-
     const response = await prisma.kasirShift.create({
       data: {
         userId,
         cabangId,
-        saldoAwal: saldoAwalBaru,
+        saldoAwal,
+        saldoAkhir,
       },
     });
 
@@ -70,7 +107,7 @@ export async function POST(req: NextRequest) {
         data: response,
         message: "Kasir berhasil dibuka.",
       },
-      { status: 200 }
+      { status: 201 }
     );
   } catch (error) {
     if (error instanceof ValidationError) {
@@ -242,7 +279,7 @@ export async function PUT(req: NextRequest) {
         },
         message: "Kasir berhasil ditutup.",
       },
-      { status: 200 }
+      { status: 201 }
     );
   } catch (error) {
     return NextResponse.json(

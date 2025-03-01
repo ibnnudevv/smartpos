@@ -21,7 +21,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
@@ -33,17 +32,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DraftTransaksiSchema } from "@/schemas/draft-transaksi";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Barang,
-  Cabang,
-  DetailDraftTransaksi,
-  DraftTransaksi,
-  User,
-} from "@prisma/client";
+import { Cabang, User } from "@prisma/client";
 import { Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { number, string } from "yup";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import axios from "axios";
 import {
@@ -53,7 +45,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { useRefetch } from "@/context/refetch";
 
